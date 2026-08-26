@@ -421,8 +421,19 @@ function confirmModal(title,body,okLabel,danger){
 function handleApiError(e,fallbackMsg){
   if(e&&e.status===401){renderLogin('登入已過期，請重新登入');return true;}
   if(e&&e.code==='must_change_password'){renderChangePw(true);return true;}
+  if(e&&e.code==='lockdown'){renderLockdown();return true;}
   toast((e&&e.message)||fallbackMsg||'操作失敗，請稍後再試');
   return false;
+}
+function renderLockdown(){
+  ME=null;state=null;
+  aiDestroy();
+  document.title='外包知識庫';
+  root.innerHTML='<div class="auth-wrap"><div class="auth-card">'+
+    '<h1 class="wordmark">知識庫暫停使用中</h1>'+
+    '<div class="tagline">管理者已暫時鎖定系統，所有存取皆已停用。<br>請稍後再試，或聯絡管理者。</div>'+
+    '<div class="form-foot" style="margin-top:10px"><button class="btn" style="width:100%;justify-content:center" onclick="location.reload()">重新整理</button></div>'+
+    '</div></div>';
 }
 
 /* ================= auth views ================= */
@@ -449,7 +460,7 @@ function renderLogin(msg){
       if(r.me&&r.me.mustChange){renderChangePw(true);}
       else{await enterApp();}
     }catch(e){
-      errBox.textContent=e.message||'登入失敗';
+      errBox.textContent=(e.code==='lockdown')?'知識庫目前暫停使用中（管理者已鎖定），請稍後再試。':(e.message||'登入失敗');
       errBox.classList.add('show');
       btn.disabled=false;
     }
@@ -854,6 +865,9 @@ async function mountAdmin(){
     '<div class="chiprow" id="projBox"></div>'+
     '<form id="addProjForm" class="form-foot"><input type="text" id="pjName" maxlength="40" placeholder="新專案名稱" style="flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)">'+
     '<button type="submit" class="btn btn-primary">新增專案</button></form></div>'+
+    '<div class="panel" style="border-color:var(--danger)"><h2>緊急鎖定</h2>'+
+    '<div class="sub">啟動後，除了部署設定中的主管理者信箱外，<b>所有成員立即無法登入與存取任何內容</b>（含問答、圖片、AI），已登入者也會被切斷，直到解除鎖定。適用於疑似帳號外洩等緊急狀況。</div>'+
+    '<div id="lockBox" class="form-foot" style="margin-top:4px"><span class="sim-empty">狀態載入中…</span></div></div>'+
     footHtml()+'</div>';
   renderProjBox();
   document.getElementById('addUserForm').addEventListener('submit',async function(ev){
@@ -878,6 +892,16 @@ async function mountAdmin(){
     }catch(e){handleApiError(e);}
   });
   loadUsers();
+  loadLockdown();
+}
+async function loadLockdown(){
+  var box=document.getElementById('lockBox');if(!box)return;
+  try{
+    var r=await api('/api/lockdown');
+    box.innerHTML=(r.on
+      ?'<span class="tag warn" style="font-size:13px;padding:4px 12px">🚨 鎖定中 — 成員目前無法使用</span><button class="btn btn-primary" data-act="lockdown-off">解除鎖定，恢復使用</button>'
+      :'<span class="tag on" style="font-size:13px;padding:4px 12px">正常運作中</span><button class="btn btn-danger" data-act="lockdown-on">立即鎖定全站</button>');
+  }catch(e){box.innerHTML='<span class="sim-empty">狀態載入失敗</span>';}
 }
 function renderProjBox(){
   var el=document.getElementById('projBox');if(!el)return;
@@ -1300,6 +1324,22 @@ root.addEventListener('click',function(ev){
       var ok=await confirmModal('刪除專案「'+name+'」？','只有沒有任何問題的專案可以刪除。','刪除',true);
       if(!ok)return;
       try{await api('/api/projects/'+encodeURIComponent(name),{method:'DELETE'});await loadData();renderProjBox();toast('已刪除');}catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='lockdown-on'){
+    (async function(){
+      var ok=await confirmModal('立即鎖定全站？','所有成員（含已登入者）會立刻被切斷，直到你回到這裡解除鎖定。只有主管理者能在鎖定期間登入。','立即鎖定',true);
+      if(!ok)return;
+      try{await api('/api/lockdown',{method:'POST',body:{on:true}});toast('已鎖定，全體成員已無法存取');loadLockdown();}catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='lockdown-off'){
+    (async function(){
+      var ok=await confirmModal('解除鎖定？','所有成員將恢復正常登入與使用。','解除鎖定');
+      if(!ok)return;
+      try{await api('/api/lockdown',{method:'POST',body:{on:false}});toast('已解除鎖定，恢復正常');loadLockdown();}catch(e){handleApiError(e);}
     })();
     return;
   }

@@ -73,6 +73,9 @@ async function handleLogin(request, env) {
   const password = String(body.password || "");
   if (!isEmail(email) || !password) return err(400, "請輸入信箱與密碼");
 
+  // 緊急鎖定：僅 ADMIN_EMAILS（部署設定，不受資料庫竄改影響）可登入
+  if ((await env.KV.get("lockdown")) && !adminSet(env).has(email)) return err(503, "lockdown");
+
   // 簡單防爆破：每 IP 10 分鐘內最多 15 次失敗
   const ip = request.headers.get("CF-Connecting-IP") || "local";
   const rlKey = "rl:" + ip;
@@ -285,6 +288,9 @@ export default {
     const me = sess.user;
     const isAdmin = !!me.is_admin || adminSet(env).has(me.email);
 
+    // 緊急鎖定：非 ADMIN_EMAILS 的既有工作階段一律封鎖（含資料、圖片、AI）
+    if (!adminSet(env).has(me.email) && (await env.KV.get("lockdown"))) return err(503, "lockdown");
+
     if (path === "/api/logout" && method === "POST") {
       await env.KV.delete("sess:" + sess.token);
       return json({ ok: true }, 200, { "Set-Cookie": sessionCookie("x", 0) });
@@ -449,6 +455,18 @@ export default {
       const email = normEmail(decodeURIComponent(m[1]));
       await env.DB.prepare("UPDATE users SET pass_hash = NULL, salt = NULL, must_change = 1 WHERE email = ?").bind(email).run();
       return json({ ok: true });
+    }
+
+    if (path === "/api/lockdown") {
+      if (!isAdmin) return err(403, "僅管理者可操作");
+      if (method === "GET") return json({ on: !!(await env.KV.get("lockdown")) });
+      if (method === "POST") {
+        let b;
+        try { b = await request.json(); } catch { return err(400, "bad json"); }
+        if (b.on) await env.KV.put("lockdown", "1");
+        else await env.KV.delete("lockdown");
+        return json({ ok: true, on: !!b.on });
+      }
     }
 
     if (path === "/api/ask" && method === "POST") return handleAsk(request, env);
