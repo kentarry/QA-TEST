@@ -1,0 +1,23 @@
+name = "kb"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kb-db"
+database_id = "PLACEHOLDER_D1_ID"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "PLACEHOLDER_KV_ID"
+
+[vars]
+ADMIN_EMAILS = "raylee@igs.com.tw"
+DEFAULT_PASSWORD = "qwerty"

@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>外包知識庫</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Noto+Sans+TC:wght@400;500;700&amp;family=Noto+Serif+TC:wght@600;700&amp;display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F3F6F5; --surface:#FFFFFF; --surface2:#ECF2F1;
+  --ink:#182726; --muted:#5B6E6C; --line:#D8E2E0; --line-soft:#E5ECEA;
+  --accent:#0E7C86; --accent-ink:#0A5A62; --on-accent:#FFFFFF; --accent-soft:#E0EFF0;
+  --open:#96630F; --open-bg:#F6ECD7; --ok:#2F7D46; --ok-bg:#E1F0E5;
+  --danger:#B3403A; --danger-bg:#F8E9E8; --mark:#FFE9A8;
+  --shadow:0 10px 30px rgba(24,39,38,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1719; --surface:#151F21; --surface2:#1B282B;
+    --ink:#E4EDEB; --muted:#8FA5A2; --line:#263A3D; --line-soft:#1F3134;
+    --accent:#4FC2CC; --accent-ink:#7AD4DC; --on-accent:#062A2E; --accent-soft:#123236;
+    --open:#E0A94F; --open-bg:#33290F; --ok:#66C284; --ok-bg:#12301C;
+    --danger:#E0837D; --danger-bg:#3A1F1D; --mark:#5A4A12;
+    --shadow:0 10px 30px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1719; --surface:#151F21; --surface2:#1B282B;
+  --ink:#E4EDEB; --muted:#8FA5A2; --line:#263A3D; --line-soft:#1F3134;
+  --accent:#4FC2CC; --accent-ink:#7AD4DC; --on-accent:#062A2E; --accent-soft:#123236;
+  --open:#E0A94F; --open-bg:#33290F; --ok:#66C284; --ok-bg:#12301C;
+  --danger:#E0837D; --danger-bg:#3A1F1D; --mark:#5A4A12;
+  --shadow:0 10px 30px rgba(0,0,0,.55);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:15px;line-height:1.65}
+h1,h2,h3,p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent-ink)}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 72px}
+
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:26px 0 16px;border-bottom:1px solid var(--line)}
+.wordmark{font-family:"Noto Serif TC",serif;font-weight:700;font-size:26px;letter-spacing:.04em;line-height:1.2}
+.wordmark a{color:inherit;text-decoration:none}
+.tagline{color:var(--muted);font-size:13px;margin-top:5px}
+.mast-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.mast-stats{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px;color:var(--muted);text-align:right;white-space:nowrap}
+.mast-stats b{color:var(--ink);font-weight:500}
+.mast-stats .warn{color:var(--open);font-weight:500}
+.userbar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;justify-content:flex-end}
+.userbar .who{font-size:12.5px;color:var(--muted);margin-right:4px}
+
+.home-sect{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:26px 0 2px}
+.projgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:12px}
+.projcard{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:18px 20px 16px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:7px;transition:border-color .12s}
+.projcard:hover{border-color:var(--accent)}
+.projcard .pname{font-family:"Noto Serif TC",serif;font-size:19px;font-weight:700;line-height:1.35}
+.projcard .pstats{font-size:12px;color:var(--muted);font-family:"IBM Plex Mono",Consolas,monospace}
+.pwarn{color:var(--open);font-weight:500}
+.proj-head{padding:20px 0 4px}
+.proj-title{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:700;line-height:1.3}
+.proj-sub{color:var(--muted);font-size:12.5px;margin-top:6px;font-family:"IBM Plex Mono",Consolas,monospace}
+
+.toolbar{display:flex;gap:10px;margin:20px 0 12px;flex-wrap:wrap}
+.search-box{flex:1;min-width:240px;position:relative}
+.search-input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);background:var(--surface);border-radius:4px;font-size:15px}
+.search-input::placeholder{color:var(--muted);opacity:.85}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);pointer-events:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:14.5px;font-weight:500;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn-primary:hover{filter:brightness(1.07)}
+.btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn-ghost{background:transparent;color:var(--muted);font-weight:400;font-size:13px;padding:7px 12px}
+.btn-ghost:hover{color:var(--accent-ink)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
+.chiprow .sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:4px 13px;border-radius:999px;font-size:13px;cursor:pointer;line-height:1.5}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.chip .cnt{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;margin-left:4px;opacity:.8}
+
+.result-note{color:var(--muted);font-size:13px;margin:14px 2px 4px}
+.qlist{margin-top:6px}
+.qrow{display:grid;grid-template-columns:4px 62px minmax(0,1fr) auto;gap:0 16px;align-items:center;padding:15px 10px 15px 0;border-bottom:1px solid var(--line-soft);text-decoration:none;color:inherit;transition:background .12s}
+.qrow:hover{background:var(--surface)}
+.stripe{width:4px;height:100%;min-height:40px;border-radius:2px}
+.stripe.open{background:var(--open)}
+.stripe.answered{background:var(--ok)}
+.qnum{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px;color:var(--muted)}
+.qmain{min-width:0}
+.qtitle{font-weight:500;font-size:15.5px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.qsnippet{color:var(--muted);font-size:13px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.qside{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.qside .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;color:var(--muted)}
+.tagline-cat{font-size:12px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;font-weight:500;line-height:1.6;white-space:nowrap}
+.pill.open{background:var(--open-bg);color:var(--open)}
+.pill.answered{background:var(--ok-bg);color:var(--ok)}
+.pill.cat{background:var(--surface2);color:var(--muted);font-weight:400}
+.pill.proj{background:var(--accent-soft);color:var(--accent-ink)}
+.empty{padding:56px 20px;text-align:center;color:var(--muted)}
+.empty .big{font-family:"Noto Serif TC",serif;font-size:18px;color:var(--ink);margin-bottom:8px}
+
+.backrow{margin:18px 0 4px}
+.dhead{padding:16px 0 18px;border-bottom:1px solid var(--line)}
+.dmeta-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dtitle{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:700;line-height:1.4;margin:12px 0 10px;text-wrap:balance}
+.dmeta{color:var(--muted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap}
+.dmeta .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12px}
+.dbody{padding:20px 2px;border-bottom:1px solid var(--line-soft)}
+.rich{white-space:pre-wrap;line-height:1.8;overflow-wrap:anywhere}
+.rich a{word-break:break-all}
+.qimg{display:block;max-width:100%;max-height:420px;border:1px solid var(--line);border-radius:4px;margin:8px 0}
+.dactions{display:flex;gap:6px;justify-content:flex-end;padding:8px 0;flex-wrap:wrap}
+.linkbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 8px;border-radius:3px;text-decoration:none;display:inline-block}
+.linkbtn:hover{color:var(--accent-ink);background:var(--surface2)}
+.linkbtn.danger:hover{color:var(--danger);background:var(--danger-bg)}
+.sect-title{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--muted);margin:26px 0 4px}
+.reply{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:15px 18px;margin:12px 0}
+.reply.official{border-left:3px solid var(--accent)}
+.reply-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.reply-head .who{font-weight:500;font-size:14px}
+.reply-head .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;color:var(--muted)}
+.reply-head .edited{font-size:11.5px;color:var(--muted)}
+.badge-official{display:inline-block;font-size:11.5px;padding:1px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500}
+.reply-actions{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.noreply{color:var(--muted);font-size:14px;padding:18px 2px}
+
+.panel{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:20px 22px;margin:16px 0}
+.panel h2{font-family:"Noto Serif TC",serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.panel .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;color:var(--muted);font-weight:500;margin-bottom:6px}
+.field input[type="text"],.field input[type="email"],.field input[type="password"],.field textarea,.field select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);font-size:15px}
+.field textarea{min-height:170px;resize:vertical;line-height:1.7}
+.field input:focus,.field textarea:focus,.field select:focus,.search-input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.field .hint{font-size:12px;color:var(--muted);margin-top:5px}
+.check{display:flex;align-items:flex-start;gap:9px;font-size:14px;cursor:pointer}
+.check input{width:16px;height:16px;margin-top:3px;accent-color:var(--accent)}
+.check .why{display:block;font-size:12px;color:var(--muted)}
+.form-foot{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.form-foot .note{font-size:12.5px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compose-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start;margin-top:16px}
+.similar-panel{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:16px 18px;position:sticky;top:16px}
+.similar-panel h3{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.similar-panel .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+.sim-item{display:block;padding:9px 10px;border-radius:4px;text-decoration:none;color:inherit;border:1px solid transparent}
+.sim-item:hover{background:var(--surface2)}
+.sim-item .t{font-size:13.5px;line-height:1.45}
+.sim-item .m{font-size:11.5px;color:var(--muted);font-family:"IBM Plex Mono",Consolas,monospace;margin-top:2px}
+.sim-empty{font-size:12.5px;color:var(--muted);padding:6px 2px}
+.attach-row{display:flex;gap:8px;align-items:center;margin-top:6px}
+
+.foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}
+.foot .tools{display:flex;gap:6px;flex-wrap:wrap}
+
+/* login / auth */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:32px 30px}
+.auth-card .wordmark{font-size:24px;text-align:center}
+.auth-card .tagline{text-align:center;margin-bottom:24px}
+.auth-err{background:var(--danger-bg);color:var(--danger);border-radius:4px;padding:9px 13px;font-size:13.5px;margin-bottom:14px;display:none}
+.auth-err.show{display:block}
+
+/* users table */
+.utable{width:100%;border-collapse:collapse;font-size:13.5px}
+.utable th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.utable td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+.utable .em{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px}
+.tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--surface2);color:var(--muted)}
+.tag.on{background:var(--accent-soft);color:var(--accent-ink)}
+.tag.warn{background:var(--open-bg);color:var(--open)}
+
+.boot{padding:80px 20px;text-align:center;color:var(--muted)}
+.spin{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:kbspin .8s linear infinite;display:inline-block;vertical-align:-3px;margin-right:10px}
+@keyframes kbspin{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(8px);bottom:28px;background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:5px;font-size:14px;box-shadow:var(--shadow);z-index:80;opacity:0;transition:opacity .18s,transform .18s;max-width:86vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,25,.45);display:flex;align-items:center;justify-content:center;z-index:75;padding:20px}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:22px 24px;max-width:420px;width:100%}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:18px;line-height:1.7}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px}
+
+/* AI chat */
+.ai-fab{position:fixed;right:22px;bottom:22px;z-index:60;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:none;background:var(--accent);color:var(--on-accent);font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.ai-fab:hover{filter:brightness(1.07)}
+.ai-panel{position:fixed;right:22px;bottom:22px;z-index:65;width:min(380px,calc(100vw - 24px));height:min(560px,calc(100vh - 48px));background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.ai-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ai-head .t{font-weight:700;font-size:15px}
+.ai-head .s{font-size:11.5px;color:var(--muted)}
+.ai-close{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:4px}
+.ai-close:hover{background:var(--surface2)}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:86%;padding:9px 13px;border-radius:10px;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.ai-msg.user{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:3px}
+.ai-msg.bot{align-self:flex-start;background:var(--surface2);border-bottom-left-radius:3px}
+.ai-msg.bot a{color:var(--accent-ink);font-weight:500}
+.ai-refs{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:86%}
+.ai-refs a{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);text-decoration:none}
+.ai-typing{align-self:flex-start;color:var(--muted);font-size:13px;padding:4px 13px}
+.ai-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.ai-input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:14px}
+.ai-input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.ai-send{padding:10px 16px;border-radius:6px;border:none;background:var(--accent);color:var(--on-accent);font-weight:500;cursor:pointer}
+.ai-send[disabled]{opacity:.5;cursor:not-allowed}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:720px){
+  .ai-panel{right:12px;bottom:12px}
+  .ai-fab{right:16px;bottom:16px}
+  .masthead{flex-direction:column;align-items:flex-start;gap:8px;padding-top:22px}
+  .mast-right{align-items:flex-start}
+  .mast-stats{text-align:left}
+  .userbar{justify-content:flex-start}
+  .qrow{grid-template-columns:4px minmax(0,1fr) auto;gap:0 12px}
+  .qnum{display:none}
+  .qsnippet{display:none}
+  .compose-grid{grid-template-columns:1fr}
+  .similar-panel{position:static}
+  .row2{grid-template-columns:1fr}
+  .utable th:nth-child(4),.utable td:nth-child(4){display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="boot"><span class="spin"></span>載入中…</div></div>
+<script>
+(function(){
+'use strict';
+
+/* ================= helpers ================= */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+function pad(n){return (n<10?'0':'')+n;}
+function fmtDate(iso){var d=new Date(iso);if(isNaN(d.getTime()))return '';return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function debounce(fn,ms){var t;return function(){var a=arguments,s=this;clearTimeout(t);t=setTimeout(function(){fn.apply(s,a);},ms);};}
+function val(id){var el=document.getElementById(id);return el?el.value:'';}
+
+async function api(path,opts){
+  opts=opts||{};
+  if(opts.body&&typeof opts.body!=='string'&&!(opts.body instanceof Blob)){opts.body=JSON.stringify(opts.body);}
+  opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+  var res=await fetch(path,opts);
+  var body=null;
+  try{body=await res.json();}catch(e){}
+  if(!res.ok){
+    var e2=new Error((body&&body.error)||('連線失敗（'+res.status+'）'));
+    e2.status=res.status;e2.code=body&&body.error;
+    throw e2;
+  }
+  return body;
+}
+
+function hlEsc(text,parts){
+  text=String(text==null?'':text);
+  var ranges=[];
+  if(parts&&parts.length){
+    var low=text.toLowerCase();
+    parts.forEach(function(p){
+      if(!p||p.length<2)return;
+      var i=0;
+      while((i=low.indexOf(p,i))!==-1){ranges.push([i,i+p.length]);i+=1;}
+    });
+    ranges.sort(function(a,b){return a[0]-b[0];});
+    var merged=[];
+    ranges.forEach(function(r){
+      if(merged.length&&r[0]<=merged[merged.length-1][1]){merged[merged.length-1][1]=Math.max(merged[merged.length-1][1],r[1]);}
+      else merged.push([r[0],r[1]]);
+    });
+    ranges=merged;
+  }
+  var out='',pos=0;
+  ranges.forEach(function(r){
+    out+=esc(text.slice(pos,r[0]))+'<mark>'+esc(text.slice(r[0],r[1]))+'</mark>';
+    pos=r[1];
+  });
+  return out+esc(text.slice(pos));
+}
+function isImageUrl(url){
+  if(/\.(png|jpe?g|gif|webp)(\?[^\s]*)?$/i.test(url))return true;
+  if(/\/img\/[0-9a-f-]{36}$/.test(url))return true;
+  if(url.indexOf('github.com/user-attachments/assets/')!==-1)return true;
+  if(url.indexOf('user-images.githubusercontent.com/')!==-1)return true;
+  return false;
+}
+var TOKEN_RE=/!\[[^\]\n]*\]\((https?:[^\s)]+|\/img\/[0-9a-f-]{36})\)|https?:\/\/[^\s<>"'）」』】]+/g;
+function renderText(raw,parts){
+  var text=String(raw==null?'':raw);
+  var out='',last=0,m;
+  TOKEN_RE.lastIndex=0;
+  while((m=TOKEN_RE.exec(text))){
+    var full=m[0];
+    var url=m[1]||full;
+    if(!m[1]){url=url.replace(/[.,;:!?)]+$/,'');}
+    out+=hlEsc(text.slice(last,m.index),parts);
+    if(isImageUrl(url)){
+      out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer"><img class="qimg" loading="lazy" alt="附圖" src="'+esc(url)+'"></a>';
+    }else{
+      out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(url)+'</a>';
+    }
+    last=m.index+(m[1]?full.length:url.length);
+    TOKEN_RE.lastIndex=last;
+  }
+  return out+hlEsc(text.slice(last),parts);
+}
+
+/* ================= state ================= */
+var state=null,ME=null,loadedAt=0;
+var root=document.getElementById('root');
+
+async function loadData(){
+  var d=await api('/api/data');
+  state=d;ME=d.me;index=null;loadedAt=Date.now();
+}
+
+/* ================= search ================= */
+var CJK_RE=/[㐀-䶿一-鿿豈-﫿]+|[a-z0-9][a-z0-9_.+#-]*/g;
+function tokenize(s){
+  var t=[],m,str=String(s||'').toLowerCase();
+  CJK_RE.lastIndex=0;
+  while((m=CJK_RE.exec(str))){
+    var w=m[0];
+    if(/[a-z0-9]/.test(w.charAt(0))){t.push(w);}
+    else if(w.length===1){t.push(w);}
+    else{for(var i=0;i<w.length-1;i++)t.push(w.slice(i,i+2));}
+  }
+  return t;
+}
+function queryParts(qstr){
+  var parts=[],m,str=String(qstr||'').toLowerCase();
+  CJK_RE.lastIndex=0;
+  while((m=CJK_RE.exec(str))){if(m[0].length>=2)parts.push(m[0]);}
+  return parts;
+}
+var index=null;
+function buildIndex(){
+  var docs=state.questions.map(function(q){
+    var toks=[];
+    var tt=tokenize(q.title);for(var i=0;i<3;i++)toks=toks.concat(tt);
+    toks=toks.concat(tokenize(q.category),tokenize(q.project),tokenize(q.body));
+    q.replies.forEach(function(r){toks=toks.concat(tokenize(r.body));});
+    var tf={};toks.forEach(function(w){tf[w]=(tf[w]||0)+1;});
+    return {q:q,tf:tf,len:toks.length};
+  });
+  var df={},N=docs.length,avg=0;
+  docs.forEach(function(d){avg+=d.len;Object.keys(d.tf).forEach(function(w){df[w]=(df[w]||0)+1;});});
+  avg=N?avg/N:1;
+  index={docs:docs,df:df,N:N,avg:avg||1};
+}
+function searchQuestions(qstr){
+  if(!state)return null;
+  if(!index)buildIndex();
+  var raw=String(qstr||'').trim();
+  if(!raw)return null;
+  var numM=raw.match(/^#?[qQ]?-?0*(\d{1,7})$/);
+  var toks=tokenize(raw);
+  var k1=1.2,b=0.75;
+  var results=[];
+  index.docs.forEach(function(d){
+    var score=0;
+    toks.forEach(function(w){
+      var tf=d.tf[w];if(!tf)return;
+      var df=index.df[w]||1;
+      var idf=Math.log(1+(index.N-df+0.5)/(df+0.5));
+      score+=idf*(tf*(k1+1))/(tf+k1*(1-b+b*d.len/index.avg));
+    });
+    var low=raw.toLowerCase();
+    if(low.length>=2){
+      if(String(d.q.title).toLowerCase().indexOf(low)!==-1)score+=6;
+      else if(String(d.q.body).toLowerCase().indexOf(low)!==-1)score+=2.5;
+    }
+    if(numM&&d.q.num===parseInt(numM[1],10))score+=100;
+    if(score>0)results.push({q:d.q,score:score});
+  });
+  results.sort(function(a,b2){return b2.score-a.score;});
+  return results;
+}
+
+/* ================= ui bits ================= */
+var toastEl=null,toastTimer=null;
+function toast(msg,ms){
+  if(!toastEl){toastEl=document.createElement('div');toastEl.className='toast';document.body.appendChild(toastEl);}
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){toastEl.classList.remove('show');},ms||2800);
+}
+function confirmModal(title,body,okLabel,danger){
+  return new Promise(function(res){
+    var ov=document.createElement('div');ov.className='modal-overlay';
+    ov.innerHTML='<div class="modal" role="dialog" aria-modal="true"><h3></h3><p></p><div class="acts">'+
+      '<button class="btn btn-ghost" data-r="0">取消</button>'+
+      '<button class="btn '+(danger?'btn-danger':'btn-primary')+'" data-r="1"></button></div></div>';
+    ov.querySelector('h3').textContent=title;
+    ov.querySelector('p').textContent=body;
+    ov.querySelector('[data-r="1"]').textContent=okLabel||'確定';
+    ov.addEventListener('click',function(ev){
+      var b=ev.target.closest('[data-r]');
+      if(b){ov.remove();res(b.getAttribute('data-r')==='1');}
+      else if(ev.target===ov){ov.remove();res(false);}
+    });
+    document.body.appendChild(ov);
+    ov.querySelector('[data-r="1"]').focus();
+  });
+}
+function handleApiError(e,fallbackMsg){
+  if(e&&e.status===401){renderLogin('登入已過期，請重新登入');return true;}
+  if(e&&e.code==='must_change_password'){renderChangePw(true);return true;}
+  toast((e&&e.message)||fallbackMsg||'操作失敗，請稍後再試');
+  return false;
+}
+
+/* ================= auth views ================= */
+function renderLogin(msg){
+  ME=null;state=null;
+  aiDestroy();
+  document.title='外包知識庫';
+  root.innerHTML='<div class="auth-wrap"><div class="auth-card">'+
+    '<h1 class="wordmark">外包知識庫</h1>'+
+    '<div class="tagline">僅限受邀帳號使用，請先登入</div>'+
+    '<div class="auth-err'+(msg?' show':'')+'" id="authErr">'+esc(msg||'')+'</div>'+
+    '<form id="loginForm">'+
+    '<div class="field"><label for="lEmail">信箱</label><input type="email" id="lEmail" autocomplete="username" placeholder="name@example.com" required></div>'+
+    '<div class="field"><label for="lPw">密碼</label><input type="password" id="lPw" autocomplete="current-password" required>'+
+    '<div class="hint">第一次登入請使用管理者提供的預設密碼，登入後需立即修改。</div></div>'+
+    '<div class="form-foot" style="margin-top:22px"><button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%;justify-content:center">登入</button></div>'+
+    '</form></div></div>';
+  document.getElementById('loginForm').addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    var btn=document.getElementById('loginBtn');btn.disabled=true;
+    var errBox=document.getElementById('authErr');errBox.classList.remove('show');
+    try{
+      var r=await api('/api/login',{method:'POST',body:{email:val('lEmail'),password:val('lPw')}});
+      if(r.me&&r.me.mustChange){renderChangePw(true);}
+      else{await enterApp();}
+    }catch(e){
+      errBox.textContent=e.message||'登入失敗';
+      errBox.classList.add('show');
+      btn.disabled=false;
+    }
+  });
+  var f=document.getElementById('lEmail');if(f)f.focus();
+}
+function renderChangePw(forced){
+  aiDestroy();
+  document.title='修改密碼｜外包知識庫';
+  root.innerHTML='<div class="auth-wrap"><div class="auth-card">'+
+    '<h1 class="wordmark">'+(forced?'首次登入設定':'修改密碼')+'</h1>'+
+    '<div class="tagline">'+(forced?'請設定你的密碼與顯示名稱後開始使用':'更新你的密碼與顯示名稱')+'</div>'+
+    '<div class="auth-err" id="authErr"></div>'+
+    '<form id="pwForm">'+
+    '<div class="field"><label for="pName">顯示名稱（發問與回覆時顯示）</label><input type="text" id="pName" maxlength="30" placeholder="例如：小林" value="'+esc(ME&&ME.name||'')+'"></div>'+
+    '<div class="field"><label for="pCur">目前密碼</label><input type="password" id="pCur" autocomplete="current-password" required>'+
+    (forced?'<div class="hint">輸入管理者提供的預設密碼。</div>':'')+'</div>'+
+    '<div class="field"><label for="pNew">新密碼（至少 8 個字元）</label><input type="password" id="pNew" autocomplete="new-password" required></div>'+
+    '<div class="field"><label for="pNew2">再輸入一次新密碼</label><input type="password" id="pNew2" autocomplete="new-password" required></div>'+
+    '<div class="form-foot" style="margin-top:22px"><button type="submit" class="btn btn-primary" id="pwBtn" style="width:100%;justify-content:center">儲存並開始使用</button></div>'+
+    (forced?'':'<div style="text-align:center;margin-top:12px"><button class="linkbtn" data-back="1">← 返回</button></div>')+
+    '</form></div></div>';
+  root.querySelector('#pwForm').addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    var errBox=document.getElementById('authErr');errBox.classList.remove('show');
+    if(val('pNew')!==val('pNew2')){errBox.textContent='兩次輸入的新密碼不一致';errBox.classList.add('show');return;}
+    var btn=document.getElementById('pwBtn');btn.disabled=true;
+    try{
+      await api('/api/password',{method:'POST',body:{current:val('pCur'),next:val('pNew'),name:val('pName').trim()}});
+      toast('密碼已更新');
+      await enterApp();
+    }catch(e){
+      errBox.textContent=e.message||'更新失敗';
+      errBox.classList.add('show');
+      btn.disabled=false;
+    }
+  });
+  var back=root.querySelector('[data-back]');
+  if(back)back.addEventListener('click',function(ev){ev.preventDefault();render();});
+}
+async function enterApp(){
+  try{
+    await loadData();
+    aiInit();
+    render();
+  }catch(e){
+    if(e.status===401){renderLogin();return;}
+    if(e.code==='must_change_password'){renderChangePw(true);return;}
+    root.innerHTML='<div class="boot">無法載入資料（'+esc(e.message||'')+'）<br><br><button class="btn btn-primary" onclick="location.reload()">重試</button></div>';
+  }
+}
+
+/* ================= view state ================= */
+var ui={q:'',status:'all',cat:null,proj:null,lastCtx:''};
+var editingQId=null,editingReplyId=null;
+
+function route(){
+  var h=location.hash||'';
+  var m=h.match(/^#q-(\d+)$/);
+  if(m)return{view:'detail',num:parseInt(m[1],10)};
+  m=h.match(/^#p-(.+)$/);
+  if(m)return{view:'project',pname:decodeURIComponent(m[1])};
+  if(h==='#new')return{view:'compose'};
+  if(h==='#admin')return{view:'admin'};
+  return{view:'home'};
+}
+function counts(pname){
+  var open=0,ans=0,all=0;
+  state.questions.forEach(function(q){
+    if(pname&&q.project!==pname)return;
+    all++;
+    if(q.status==='answered')ans++;else open++;
+  });
+  return{all:all,open:open,answered:ans};
+}
+function findByNum(num){
+  for(var i=0;i<state.questions.length;i++)if(state.questions[i].num===num)return state.questions[i];
+  return null;
+}
+function lastActivity(q){return q.replies.length?q.replies[q.replies.length-1].createdAt:q.createdAt;}
+function resetFiltersFor(ctx){
+  if(ui.lastCtx!==ctx){ui.q='';ui.status='all';ui.cat=null;ui.lastCtx=ctx;}
+}
+function canEdit(authorEmail){return ME&&(ME.isAdmin||ME.email===authorEmail);}
+
+/* ================= templates ================= */
+function mastheadHtml(){
+  var c=counts();
+  return '<header class="masthead"><div>'+
+    '<h1 class="wordmark"><a href="#" data-act="go-home">外包知識庫</a></h1>'+
+    '<div class="tagline">依專案分區 · 發問 · 回覆 · 檢索 — 問答都會永久存檔</div></div>'+
+    '<div class="mast-right"><div class="mast-stats">共 <b>'+c.all+'</b> 題'+
+    (c.open?' · <span class="warn">待回覆 '+c.open+'</span>':'')+
+    ' · 已回覆 '+c.answered+'</div>'+
+    '<div class="userbar"><span class="who">'+esc(ME.name||ME.email)+'</span>'+
+    '<button class="linkbtn" data-act="refresh">↻ 更新</button>'+
+    '<button class="linkbtn" data-act="go-pw">修改密碼</button>'+
+    (ME.isAdmin?'<button class="linkbtn" data-act="go-admin">管理</button>':'')+
+    '<button class="linkbtn" data-act="logout">登出</button></div></div></header>';
+}
+function pillHtml(status){
+  return status==='answered'?'<span class="pill answered">已回覆</span>':'<span class="pill open">待回覆</span>';
+}
+function qnumStr(n){return 'Q-'+(n<10?'00':(n<100?'0':''))+n;}
+function snippetFor(q,parts){
+  var raw=String(q.body).replace(/!\[[^\]\n]*\]\([^)]*\)/g,'[附圖]').replace(/\s+/g,' ');
+  if(parts&&parts.length){
+    var low=raw.toLowerCase(),best=-1;
+    parts.forEach(function(p){if(!p||p.length<2)return;var i=low.indexOf(p);if(i!==-1&&(best===-1||i<best))best=i;});
+    if(best>40)return '…'+raw.slice(best-40,best+80);
+  }
+  return raw.slice(0,120);
+}
+function rowHtml(q,parts,showProject){
+  var sideInfo=showProject?esc(q.project)+' · '+esc(q.category||''):esc(q.category||'');
+  return '<a class="qrow" href="#q-'+q.num+'">'+
+    '<span class="stripe '+(q.status==='answered'?'answered':'open')+'"></span>'+
+    '<span class="qnum">'+qnumStr(q.num)+'</span>'+
+    '<span class="qmain"><span class="qtitle">'+hlEsc(q.title,parts)+'</span>'+
+    '<span class="qsnippet">'+hlEsc(snippetFor(q,parts),parts)+'</span></span>'+
+    '<span class="qside">'+pillHtml(q.status)+
+    '<span class="when">'+fmtDate(lastActivity(q)).slice(0,10)+' · '+q.replies.length+' 則回覆</span>'+
+    '<span class="tagline-cat">'+sideInfo+'</span></span></a>';
+}
+function svgSearch(){
+  return '<svg class="search-ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11 L14.5 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+}
+function footHtml(){
+  return '<footer class="foot"><div>資料儲存於受權限保護的資料庫，僅限受邀帳號查看。</div>'+
+    '<div class="tools">'+
+    '<button class="btn btn-ghost" data-act="export-json">匯出 JSON 備份</button>'+
+    '<button class="btn btn-ghost" data-act="export-md">匯出 Markdown</button>'+
+    '</div></footer>';
+}
+
+/* ---------- home ---------- */
+function homeProjectsHtml(){
+  var cards=state.projects.map(function(p){
+    var c=counts(p);
+    return '<a class="projcard" href="#p-'+encodeURIComponent(p)+'"><span class="pname">'+esc(p)+'</span>'+
+      '<span class="pstats">共 '+c.all+' 題'+(c.open?' · <span class="pwarn">待回覆 '+c.open+'</span>':'')+
+      (c.all?' · 已回覆 '+c.answered:'')+'</span></a>';
+  }).join('');
+  return '<div class="home-sect"><h2 class="sect-title" style="margin:0">選擇專案</h2></div><div class="projgrid">'+cards+'</div>';
+}
+function latestHtml(){
+  if(!state.questions.length)return '';
+  var list=state.questions.slice().sort(function(a,b){return lastActivity(b).localeCompare(lastActivity(a));}).slice(0,8);
+  return '<h2 class="sect-title" style="margin-top:34px">最新動態</h2><div class="qlist">'+
+    list.map(function(q){return rowHtml(q,null,true);}).join('')+'</div>';
+}
+function mountHome(){
+  ui.proj=null;
+  resetFiltersFor('home');
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="toolbar"><div class="search-box">'+svgSearch()+
+    '<input class="search-input" id="searchInput" type="search" placeholder="搜尋全部專案，或直接輸入你想問的問題…" value="'+esc(ui.q)+'" aria-label="搜尋全部專案"></div>'+
+    '<button class="btn btn-primary" data-act="go-new">提出問題</button>'+
+    '</div>'+
+    '<div class="result-note" id="resultNote" aria-live="polite"></div>'+
+    '<div class="qlist" id="results"></div>'+
+    '<div id="homeProjects">'+homeProjectsHtml()+latestHtml()+'</div>'+
+    footHtml()+'</div>';
+  var si=document.getElementById('searchInput');
+  si.addEventListener('input',debounce(function(){ui.q=si.value;updateHomeResults();},180));
+  updateHomeResults();
+}
+function updateHomeResults(){
+  var el=document.getElementById('results');if(!el)return;
+  var note=document.getElementById('resultNote');
+  var grid=document.getElementById('homeProjects');
+  var searched=searchQuestions(ui.q);
+  if(searched===null){
+    el.innerHTML='';
+    if(note)note.textContent='';
+    if(grid)grid.style.display='';
+    return;
+  }
+  if(grid)grid.style.display='none';
+  var parts=queryParts(ui.q);
+  var list=searched.map(function(r){return r.q;});
+  if(note)note.textContent='在全部專案中找到 '+list.length+' 個相關問答（依相似度排序）';
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="big">找不到相似的問答</div>換個關鍵字試試，或直接提出新問題。'+
+      '<div style="margin-top:16px"><button class="btn btn-primary" data-act="go-new-with-q">提出新問題</button></div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(q){return rowHtml(q,parts,true);}).join('')+
+    '<div class="empty" style="padding:26px 20px">沒有你要的答案？<button class="btn btn-ghost" data-act="go-new-with-q" style="text-decoration:underline">把「'+esc(ui.q.slice(0,24))+'」發成新問題</button></div>';
+}
+
+/* ---------- project ---------- */
+function mountProject(pname){
+  if(state.projects.indexOf(pname)===-1){
+    root.innerHTML='<div class="wrap">'+mastheadHtml()+
+      '<div class="empty"><div class="big">找不到這個專案</div></div>'+
+      '<div style="text-align:center"><button class="btn" data-act="go-home">回到專案列表</button></div>'+footHtml()+'</div>';
+    return;
+  }
+  ui.proj=pname;
+  resetFiltersFor('p:'+pname);
+  var c=counts(pname);
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-home">← 全部專案</button></div>'+
+    '<div class="proj-head"><h2 class="proj-title">'+esc(pname)+'</h2>'+
+    '<div class="proj-sub">共 '+c.all+' 題'+(c.open?' · <span class="pwarn">待回覆 '+c.open+'</span>':'')+' · 已回覆 '+c.answered+'</div></div>'+
+    '<div class="toolbar"><div class="search-box">'+svgSearch()+
+    '<input class="search-input" id="searchInput" type="search" placeholder="在「'+esc(pname)+'」中搜尋，或直接輸入你想問的問題…" value="'+esc(ui.q)+'" aria-label="搜尋此專案"></div>'+
+    '<button class="btn btn-primary" data-act="go-new">提出問題</button>'+
+    '</div>'+
+    '<div class="chiprow" id="chipRow"></div>'+
+    '<div class="result-note" id="resultNote" aria-live="polite"></div>'+
+    '<div class="qlist" id="results"></div>'+footHtml()+'</div>';
+  var si=document.getElementById('searchInput');
+  si.addEventListener('input',debounce(function(){ui.q=si.value;updateResults();},180));
+  updateChips();
+  updateResults();
+}
+function updateChips(){
+  var el=document.getElementById('chipRow');if(!el)return;
+  var c=counts(ui.proj);
+  var html='';
+  [['all','全部',c.all],['open','待回覆',c.open],['answered','已回覆',c.answered]].forEach(function(s){
+    html+='<button class="chip'+(ui.status===s[0]?' on':'')+'" data-act="chip-status" data-v="'+s[0]+'">'+s[1]+'<span class="cnt">'+s[2]+'</span></button>';
+  });
+  var cats={};
+  state.categories.forEach(function(cat){cats[cat]=true;});
+  state.questions.forEach(function(q){if(q.project===ui.proj&&q.category)cats[q.category]=true;});
+  var catList=Object.keys(cats);
+  if(catList.length){html+='<span class="sep"></span>';}
+  catList.forEach(function(cat){
+    html+='<button class="chip'+(ui.cat===cat?' on':'')+'" data-act="chip-cat" data-v="'+esc(cat)+'">'+esc(cat)+'</button>';
+  });
+  el.innerHTML=html;
+}
+function updateResults(){
+  var el=document.getElementById('results');if(!el)return;
+  var note=document.getElementById('resultNote');
+  var parts=queryParts(ui.q);
+  var searched=searchQuestions(ui.q);
+  var list;
+  if(searched===null){
+    list=state.questions.slice().sort(function(a,b){return String(b.createdAt).localeCompare(String(a.createdAt));});
+  }else{
+    list=searched.map(function(r){return r.q;});
+  }
+  list=list.filter(function(q){
+    if(q.project!==ui.proj)return false;
+    if(ui.status==='open'&&q.status!=='open')return false;
+    if(ui.status==='answered'&&q.status!=='answered')return false;
+    if(ui.cat&&q.category!==ui.cat)return false;
+    return true;
+  });
+  if(note){
+    if(searched!==null){note.textContent='在「'+ui.proj+'」中找到 '+list.length+' 個相關問答（依相似度排序）';}
+    else if(ui.status!=='all'||ui.cat){note.textContent='符合條件的問題共 '+list.length+' 題';}
+    else note.textContent='';
+  }
+  if(!list.length){
+    var msg=searched!==null
+      ?'<div class="big">這個專案裡找不到相似的問答</div>換個關鍵字、回首頁搜尋全部專案，或直接提出新問題。'
+      :'<div class="big">目前沒有符合條件的問題</div>調整上方的篩選條件，或提出第一個問題。';
+    el.innerHTML='<div class="empty">'+msg+
+      '<div style="margin-top:16px"><button class="btn btn-primary" data-act="go-new-with-q">提出新問題</button></div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(q){return rowHtml(q,searched!==null?parts:null,false);}).join('')+
+    (searched!==null?'<div class="empty" style="padding:26px 20px">沒有你要的答案？<button class="btn btn-ghost" data-act="go-new-with-q" style="text-decoration:underline">把「'+esc(ui.q.slice(0,24))+'」發成新問題</button></div>':'');
+}
+
+/* ---------- detail ---------- */
+function mountDetail(num){
+  var q=findByNum(num);
+  if(!q){
+    root.innerHTML='<div class="wrap">'+mastheadHtml()+
+      '<div class="empty"><div class="big">找不到編號 '+qnumStr(num)+' 的問題</div>它可能已被刪除。</div>'+
+      '<div style="text-align:center"><button class="btn" data-act="go-home">回到專案列表</button></div>'+footHtml()+'</div>';
+    return;
+  }
+  ui.proj=q.project;
+  var repliesHtml='';
+  if(!q.replies.length){
+    repliesHtml='<div class="noreply">尚無回覆。管理者看到後會盡快回覆；回覆會顯示在這裡並永久存檔。</div>';
+  }else{
+    repliesHtml=q.replies.map(function(r){
+      if(editingReplyId===r.id){
+        return '<div class="reply'+(r.official?' official':'')+'">'+
+          '<div class="reply-head"><span class="who">'+esc(r.author)+'</span></div>'+
+          '<div class="field"><textarea id="editReplyBody" style="min-height:120px">'+esc(r.body)+'</textarea>'+
+          '<div class="attach-row"><button type="button" class="btn btn-ghost" data-act="attach" data-target="editReplyBody">＋ 附加圖片</button><span class="note" style="font-size:12px;color:var(--muted)">也可以直接貼上截圖</span></div></div>'+
+          (ME.isAdmin?'<label class="check"><input type="checkbox" id="editReplyOfficial"'+(r.official?' checked':'')+'> 標記為正式解答</label>':'')+
+          '<div class="form-foot"><button class="btn btn-primary" data-act="save-reply-edit" data-r="'+r.id+'">儲存修改</button>'+
+          '<button class="btn btn-ghost" data-act="cancel-reply-edit">取消</button></div></div>';
+      }
+      var acts='';
+      if(canEdit(r.authorEmail)){
+        acts+='<button class="linkbtn" data-act="edit-reply" data-r="'+r.id+'">編輯</button>'+
+              '<button class="linkbtn danger" data-act="del-reply" data-r="'+r.id+'">刪除</button>';
+      }
+      if(ME.isAdmin){
+        acts+='<button class="linkbtn" data-act="toggle-official" data-r="'+r.id+'" data-v="'+(r.official?'0':'1')+'">'+(r.official?'取消正式解答':'標記為正式解答')+'</button>';
+      }
+      return '<div class="reply'+(r.official?' official':'')+'">'+
+        '<div class="reply-head"><span class="who">'+esc(r.author)+'</span>'+
+        (r.official?'<span class="badge-official">正式解答</span>':'')+
+        '<span class="when">'+fmtDate(r.createdAt)+'</span>'+
+        (r.editedAt?'<span class="edited">（已編輯）</span>':'')+
+        (acts?'<span class="reply-actions">'+acts+'</span>':'')+
+        '</div><div class="rich">'+renderText(r.body)+'</div></div>';
+    }).join('');
+  }
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-project" data-p="'+esc(q.project)+'">← '+esc(q.project)+'</button>'+
+    '<button class="linkbtn" data-act="go-home">全部專案</button></div>'+
+    '<div class="dhead"><div class="dmeta-top"><span class="qnum mono">'+qnumStr(q.num)+'</span>'+pillHtml(q.status)+
+    '<span class="pill proj">'+esc(q.project)+'</span>'+
+    '<span class="pill cat">'+esc(q.category||'未分類')+'</span></div>'+
+    '<h2 class="dtitle">'+esc(q.title)+'</h2>'+
+    '<div class="dmeta"><span>提問者：'+esc(q.author)+'</span><span class="when">'+fmtDate(q.createdAt)+'</span>'+
+    (q.editedAt?'<span>（已編輯）</span>':'')+'</div></div>'+
+    '<div class="dbody rich">'+renderText(q.body)+'</div>'+
+    '<div class="dactions"><button class="linkbtn" data-act="copy-link" data-n="'+q.num+'">複製此題連結</button>'+
+    (canEdit(q.authorEmail)?'<button class="linkbtn" data-act="edit-q" data-n="'+q.num+'">編輯問題</button>'+
+    '<button class="linkbtn danger" data-act="del-q" data-n="'+q.num+'">刪除問題</button>':'')+
+    '</div>'+
+    '<div class="sect-title">回覆（'+q.replies.length+'）</div>'+repliesHtml+
+    '<div class="panel" id="replyPanel"><h2>回覆這個問題</h2>'+
+    '<div class="sub">以「'+esc(ME.name||ME.email)+'」的身分回覆，送出後所有成員都看得到。</div>'+
+    '<form id="replyForm"><div class="field"><label for="rBody">回覆內容</label>'+
+    '<textarea id="rBody" placeholder="輸入回覆內容，可貼上網址或直接貼上截圖。"></textarea>'+
+    '<div class="attach-row"><button type="button" class="btn btn-ghost" data-act="attach" data-target="rBody">＋ 附加圖片</button><span style="font-size:12px;color:var(--muted)">也可以直接在輸入框貼上截圖（Ctrl+V）</span></div></div>'+
+    (ME.isAdmin?'<label class="check"><input type="checkbox" id="rOfficial"><span>標記為正式解答<span class="why">勾選後此問題狀態會變成「已回覆」。</span></span></label>':'')+
+    '<div class="form-foot"><button type="submit" class="btn btn-primary">送出回覆</button></div></form></div>'+
+    footHtml()+'</div>';
+  var form=document.getElementById('replyForm');
+  wireImagePaste(document.getElementById('rBody'));
+  var eb=document.getElementById('editReplyBody');
+  if(eb)wireImagePaste(eb);
+  form.addEventListener('submit',function(ev){ev.preventDefault();submitReply(q.num);});
+}
+
+/* ---------- compose ---------- */
+function mountCompose(){
+  var editQ=editingQId?findByNum(editingQId):null;
+  var d=editQ?{project:editQ.project,category:editQ.category,title:editQ.title,body:editQ.body}:{title:ui.q||''};
+  var selProj=(d.project&&state.projects.indexOf(d.project)!==-1)?d.project:((ui.proj&&state.projects.indexOf(ui.proj)!==-1)?ui.proj:'通用');
+  var projOpts=state.projects.map(function(p){
+    return '<option value="'+esc(p)+'"'+(selProj===p?' selected':'')+'>'+esc(p)+'</option>';
+  }).join('');
+  var catOpts=state.categories.map(function(c){
+    return '<option value="'+esc(c)+'"'+(d.category===c?' selected':'')+'>'+esc(c)+'</option>';
+  }).join('');
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-back-ctx">← 返回</button></div>'+
+    '<div class="compose-grid"><div class="panel" style="margin:0">'+
+    '<h2>'+(editQ?'編輯問題 '+qnumStr(editQ.num):'提出問題')+'</h2>'+
+    '<div class="sub">'+(editQ?'修改後會直接覆蓋原本的內容。':'以「'+esc(ME.name||ME.email)+'」的身分發問；送出前，請先看看右側是否已有類似問題。')+'</div>'+
+    '<form id="composeForm">'+
+    '<div class="row2"><div class="field"><label for="cProj">專案</label><select id="cProj">'+projOpts+'</select></div>'+
+    '<div class="field"><label for="cCat">分類</label><select id="cCat">'+catOpts+'</select></div></div>'+
+    '<div class="field"><label for="cTitle">問題標題</label>'+
+    '<input type="text" id="cTitle" maxlength="120" value="'+esc(d.title||'')+'" placeholder="一句話描述問題，例如：輸出的檔案要用什麼格式命名？"></div>'+
+    '<div class="field"><label for="cBody">詳細描述</label>'+
+    '<textarea id="cBody" placeholder="把情境講清楚：你在做什麼、遇到什麼狀況、試過什麼。">'+esc(d.body||'')+'</textarea>'+
+    '<div class="attach-row"><button type="button" class="btn btn-ghost" data-act="attach" data-target="cBody">＋ 附加圖片</button><span style="font-size:12px;color:var(--muted)">也可以直接在輸入框貼上截圖（Ctrl+V）</span></div></div>'+
+    '<div class="form-foot"><button type="submit" class="btn btn-primary" id="composeBtn">'+(editQ?'儲存修改':'送出問題')+'</button>'+
+    (editQ?'<button type="button" class="btn btn-ghost" data-act="cancel-edit-q" data-n="'+editQ.num+'">取消</button>':'<span class="note">送出後所有成員都能看到。</span>')+
+    '</div></form></div>'+
+    '<aside class="similar-panel"><h3>可能相關的問答</h3><div class="sub">輸入標題或描述時即時比對（跨專案）</div><div id="similarBox"><div class="sim-empty">開始輸入後，這裡會列出相似的問題。</div></div></aside>'+
+    '</div>'+footHtml()+'</div>';
+  var form=document.getElementById('composeForm');
+  var upd=debounce(updateSimilar,250);
+  ['cTitle','cBody'].forEach(function(id){document.getElementById(id).addEventListener('input',upd);});
+  wireImagePaste(document.getElementById('cBody'));
+  form.addEventListener('submit',function(ev){ev.preventDefault();editQ?saveQuestionEdit(editQ.num):submitQuestion();});
+  updateSimilar();
+}
+function updateSimilar(){
+  var box=document.getElementById('similarBox');if(!box)return;
+  var qstr=(val('cTitle')+' '+val('cBody').slice(0,200)).trim();
+  if(qstr.length<2){box.innerHTML='<div class="sim-empty">開始輸入後，這裡會列出相似的問題。</div>';return;}
+  var res=(searchQuestions(qstr)||[]).filter(function(r){return r.q.num!==editingQId;}).slice(0,4);
+  if(!res.length){box.innerHTML='<div class="sim-empty">沒有找到相似的問題，可以放心送出。</div>';return;}
+  box.innerHTML=res.map(function(r){
+    return '<a class="sim-item" href="#q-'+r.q.num+'"><div class="t">'+esc(r.q.title)+'</div>'+
+      '<div class="m">'+qnumStr(r.q.num)+' · '+esc(r.q.project)+' · '+(r.q.status==='answered'?'已回覆':'待回覆')+'</div></a>';
+  }).join('');
+}
+
+/* ---------- admin ---------- */
+async function mountAdmin(){
+  if(!ME.isAdmin){location.hash='';return;}
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-home">← 返回首頁</button></div>'+
+    '<div class="panel"><h2>成員名單</h2><div class="sub">只有名單內的信箱可以登入。新成員的預設密碼為「qwerty」，首次登入時會被要求修改。</div>'+
+    '<div id="userBox"><div class="sim-empty">載入中…</div></div>'+
+    '<form id="addUserForm" class="form-foot" style="margin-top:16px">'+
+    '<input type="email" id="uEmail" placeholder="name@example.com" style="flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)">'+
+    '<label class="check" style="align-items:center"><input type="checkbox" id="uAdmin"> 管理者</label>'+
+    '<button type="submit" class="btn btn-primary">新增成員</button></form></div>'+
+    '<div class="panel"><h2>專案管理</h2><div class="sub">刪除專案前，該專案下不可有任何問題。</div>'+
+    '<div class="chiprow" id="projBox"></div>'+
+    '<form id="addProjForm" class="form-foot"><input type="text" id="pjName" maxlength="40" placeholder="新專案名稱" style="flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)">'+
+    '<button type="submit" class="btn btn-primary">新增專案</button></form></div>'+
+    footHtml()+'</div>';
+  renderProjBox();
+  document.getElementById('addUserForm').addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    try{
+      await api('/api/users',{method:'POST',body:{email:val('uEmail'),isAdmin:document.getElementById('uAdmin').checked}});
+      toast('已新增，請提供對方預設密碼 qwerty');
+      document.getElementById('uEmail').value='';
+      loadUsers();
+    }catch(e){handleApiError(e);}
+  });
+  document.getElementById('addProjForm').addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    var name=val('pjName').trim();
+    if(!name)return;
+    try{
+      await api('/api/projects',{method:'POST',body:{name:name}});
+      toast('已新增專案');
+      document.getElementById('pjName').value='';
+      await loadData();
+      renderProjBox();
+    }catch(e){handleApiError(e);}
+  });
+  loadUsers();
+}
+function renderProjBox(){
+  var el=document.getElementById('projBox');if(!el)return;
+  el.innerHTML=state.projects.map(function(p){
+    var c=counts(p);
+    return '<span class="chip">'+esc(p)+'<span class="cnt">'+c.all+'</span> <button class="linkbtn danger" data-act="del-proj" data-p="'+esc(p)+'" style="padding:0 4px">✕</button></span>';
+  }).join('');
+}
+async function loadUsers(){
+  var box=document.getElementById('userBox');if(!box)return;
+  try{
+    var r=await api('/api/users');
+    box.innerHTML='<div style="overflow-x:auto"><table class="utable"><tr><th>信箱</th><th>名稱</th><th>狀態</th><th>加入時間</th><th></th></tr>'+
+      r.users.map(function(u){
+        return '<tr><td class="em">'+esc(u.email)+(u.isAdmin?' <span class="tag on">管理者</span>':'')+'</td>'+
+          '<td>'+esc(u.name)+'</td>'+
+          '<td>'+(u.activated?'<span class="tag">已啟用</span>':'<span class="tag warn">未啟用（預設密碼）</span>')+'</td>'+
+          '<td class="em" style="font-size:11.5px">'+fmtDate(u.createdAt).slice(0,10)+'</td>'+
+          '<td style="text-align:right;white-space:nowrap">'+
+          '<button class="linkbtn" data-act="reset-user" data-e="'+esc(u.email)+'">重設密碼</button>'+
+          (u.email===ME.email?'':'<button class="linkbtn danger" data-act="del-user" data-e="'+esc(u.email)+'">移除</button>')+
+          '</td></tr>';
+      }).join('')+'</table></div>';
+  }catch(e){box.innerHTML='<div class="sim-empty">載入失敗</div>';}
+}
+
+/* ================= actions ================= */
+async function submitQuestion(){
+  var title=val('cTitle').trim(),body=val('cBody').trim();
+  if(title.length<4){toast('標題太短，請描述得更完整一點');return;}
+  if(body.length<10){toast('請在詳細描述中補充更多情境');return;}
+  var btn=document.getElementById('composeBtn');btn.disabled=true;
+  try{
+    var r=await api('/api/questions',{method:'POST',body:{project:val('cProj'),category:val('cCat'),title:title,body:body}});
+    await loadData();
+    location.hash='#q-'+r.num;
+    toast('問題已送出');
+  }catch(e){btn.disabled=false;handleApiError(e);}
+}
+async function saveQuestionEdit(num){
+  var title=val('cTitle').trim(),body=val('cBody').trim();
+  if(title.length<4||body.length<10){toast('請確認標題與描述都已填寫完整');return;}
+  var btn=document.getElementById('composeBtn');btn.disabled=true;
+  try{
+    await api('/api/questions/'+num,{method:'PATCH',body:{project:val('cProj'),category:val('cCat'),title:title,body:body}});
+    editingQId=null;
+    await loadData();
+    location.hash='#q-'+num;
+    render();
+    toast('已儲存修改');
+  }catch(e){btn.disabled=false;handleApiError(e);}
+}
+async function submitReply(num){
+  var body=val('rBody').trim();
+  if(body.length<2){toast('請輸入回覆內容');return;}
+  var official=document.getElementById('rOfficial');
+  try{
+    await api('/api/questions/'+num+'/replies',{method:'POST',body:{body:body,official:official?official.checked:false}});
+    await loadData();
+    render();
+    toast('回覆已送出');
+  }catch(e){handleApiError(e);}
+}
+async function saveReplyEdit(rid){
+  var body=val('editReplyBody').trim();
+  if(body.length<2){toast('回覆內容不可為空');return;}
+  var official=document.getElementById('editReplyOfficial');
+  var payload={body:body};
+  if(official)payload.official=official.checked;
+  try{
+    await api('/api/replies/'+rid,{method:'PATCH',body:payload});
+    editingReplyId=null;
+    await loadData();
+    render();
+    toast('已儲存修改');
+  }catch(e){handleApiError(e);}
+}
+
+/* ---------- images ---------- */
+function compressImage(file){
+  return new Promise(function(resolve){
+    if(file.type==='image/gif'){resolve(file);return;}
+    var u=URL.createObjectURL(file);
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height,max=1600;
+      if(w>max||h>max){var k=Math.min(max/w,max/h);w=Math.round(w*k);h=Math.round(h*k);}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(function(b){URL.revokeObjectURL(u);resolve(b&&b.size<file.size?b:file);},'image/jpeg',0.85);
+    };
+    img.onerror=function(){URL.revokeObjectURL(u);resolve(file);};
+    img.src=u;
+  });
+}
+function insertAtCursor(ta,text){
+  var s=ta.selectionStart||ta.value.length,e=ta.selectionEnd||s;
+  ta.value=ta.value.slice(0,s)+text+ta.value.slice(e);
+  ta.selectionStart=ta.selectionEnd=s+text.length;
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+async function uploadImageTo(ta,file){
+  if(!file||!/^image\//.test(file.type)){toast('僅支援圖片檔');return;}
+  toast('圖片上傳中…');
+  try{
+    var blob=await compressImage(file);
+    if(blob.size>2*1024*1024){toast('圖片壓縮後仍超過 2MB，請縮小後再試');return;}
+    var res=await fetch('/api/images',{method:'POST',headers:{'Content-Type':blob.type||'image/jpeg'},body:blob});
+    var j=null;try{j=await res.json();}catch(e){}
+    if(!res.ok){toast((j&&j.error)||'上傳失敗');return;}
+    insertAtCursor(ta,'\n![附圖]('+location.origin+j.url+')\n');
+    toast('圖片已插入');
+  }catch(e){toast('上傳失敗，請稍後再試');}
+}
+function wireImagePaste(ta){
+  if(!ta)return;
+  ta.addEventListener('paste',function(ev){
+    var items=(ev.clipboardData&&ev.clipboardData.files)||[];
+    if(items.length&&/^image\//.test(items[0].type)){
+      ev.preventDefault();
+      uploadImageTo(ta,items[0]);
+    }
+  });
+}
+var fileInput=null;
+function pickImage(targetId){
+  if(!fileInput){
+    fileInput=document.createElement('input');
+    fileInput.type='file';
+    fileInput.accept='image/*';
+    fileInput.style.display='none';
+    document.body.appendChild(fileInput);
+  }
+  fileInput.onchange=function(){
+    var ta=document.getElementById(targetId);
+    if(fileInput.files.length&&ta)uploadImageTo(ta,fileInput.files[0]);
+    fileInput.value='';
+  };
+  fileInput.click();
+}
+
+/* ---------- exports / misc ---------- */
+function download(filename,text,type){
+  var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);
+}
+function stamp(){var d=new Date();return ''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
+function exportJson(){
+  download('kb-backup-'+stamp()+'.json',JSON.stringify({projects:state.projects,categories:state.categories,questions:state.questions},null,2),'application/json');
+  toast('備份已下載');
+}
+function exportMd(){
+  var lines=['# 外包知識庫備份','','匯出時間：'+fmtDate(new Date().toISOString())+' · 共 '+state.questions.length+' 題',''];
+  state.projects.forEach(function(p){
+    var qs=state.questions.filter(function(q){return q.project===p;}).sort(function(a,b){return a.num-b.num;});
+    if(!qs.length)return;
+    lines.push('','# 專案：'+p,'');
+    qs.forEach(function(q){
+      lines.push('---','','## '+qnumStr(q.num)+'　'+q.title,'');
+      lines.push('- 狀態：'+(q.status==='answered'?'已回覆':'待回覆')+'　分類：'+(q.category||'未分類'));
+      lines.push('- 提問：'+q.author+'（'+fmtDate(q.createdAt)+'）','');
+      lines.push(q.body,'');
+      q.replies.forEach(function(r){
+        lines.push('### 回覆 — '+r.author+'（'+fmtDate(r.createdAt)+'）'+(r.official?'【正式解答】':''),'');
+        lines.push(r.body,'');
+      });
+    });
+  });
+  download('kb-export-'+stamp()+'.md',lines.join('\n'),'text/markdown;charset=utf-8');
+  toast('Markdown 已下載');
+}
+function copyLink(num){
+  var url=location.href.split('#')[0]+'#q-'+num;
+  var fail=function(){toast('無法自動複製，請直接複製網址列');};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){toast('已複製連結');},fail);
+    }else fail();
+  }catch(e){fail();}
+}
+
+/* ================= AI chat ================= */
+var AI={busy:false,msgs:[],panel:null,fab:null};
+function aiDestroy(){
+  if(AI.fab){AI.fab.remove();AI.fab=null;}
+  if(AI.panel){AI.panel.remove();AI.panel=null;}
+  AI.msgs=[];
+}
+function aiQLinkify(escaped){
+  return escaped.replace(/Q-0*(\d{1,7})/g,function(m,n){return '<a href="#q-'+n+'">'+m+'</a>';});
+}
+function aiRenderMsgs(){
+  var box=document.getElementById('aiMsgs');if(!box)return;
+  var html='';
+  AI.msgs.forEach(function(m){
+    if(m.role==='user'){html+='<div class="ai-msg user">'+esc(m.content)+'</div>';}
+    else{
+      html+='<div class="ai-msg bot">'+aiQLinkify(esc(m.content))+'</div>';
+      if(m.refs&&m.refs.length){
+        html+='<div class="ai-refs">'+m.refs.map(function(r){
+          return '<a href="#q-'+r.num+'">'+qnumStr(r.num)+' '+esc(String(r.title).slice(0,18))+'</a>';
+        }).join('')+'</div>';
+      }
+    }
+  });
+  if(AI.busy)html+='<div class="ai-typing">AI 思考中…</div>';
+  box.innerHTML=html;
+  box.scrollTop=box.scrollHeight;
+}
+function aiToggle(show){
+  if(!AI.panel)return;
+  AI.panel.style.display=show?'flex':'none';
+  AI.fab.style.display=show?'none':'flex';
+  if(show){var inp=document.getElementById('aiInput');if(inp)inp.focus();aiRenderMsgs();}
+}
+function localAnswer(qstr){
+  if(!state)return {content:'資料還在載入中，請稍候再試。',refs:[]};
+  var res=(searchQuestions(qstr)||[]).slice(0,3);
+  var refs=res.map(function(r){return {num:r.q.num,title:r.q.title};});
+  if(!res.length||res[0].score<1.2){
+    return {content:'知識庫目前沒有這一題的相關資料。建議點「提出問題」發問，管理者會盡快回覆。',refs:refs};
+  }
+  var top=res[0].q;
+  var official=(top.replies||[]).filter(function(r){return r.official;});
+  var content;
+  if(official.length){
+    var ans=official.map(function(r){return r.body;}).join('\n');
+    content='這題和 '+qnumStr(top.num)+'「'+top.title+'」最相關，正式解答如下：\n\n'+ans.slice(0,500)+(ans.length>500?'…（完整內容請點 '+qnumStr(top.num)+'）':'');
+  }else{
+    content='已經有人問過類似的問題：'+qnumStr(top.num)+'「'+top.title+'」，目前還在等待管理者回覆，可以點進去追蹤。';
+  }
+  return {content:content,refs:refs};
+}
+function aiFinish(){
+  AI.busy=false;
+  var b=document.getElementById('aiSend');if(b)b.disabled=false;
+  aiRenderMsgs();
+  var i2=document.getElementById('aiInput');if(i2)i2.focus();
+}
+function aiSend(){
+  var inp=document.getElementById('aiInput');
+  var q=inp?inp.value.trim():'';
+  if(!q||AI.busy)return;
+  AI.msgs.push({role:'user',content:q});
+  inp.value='';
+  AI.busy=true;
+  var btn=document.getElementById('aiSend');if(btn)btn.disabled=true;
+  aiRenderMsgs();
+  api('/api/ask',{method:'POST',body:{question:q,history:AI.msgs.slice(-9,-1).map(function(m){return {role:m.role,content:m.content};})}})
+    .then(function(res){
+      AI.msgs.push({role:'assistant',content:String(res.answer||'').trim()||'（沒有收到回覆）',refs:res.refs||[]});
+    })
+    .catch(function(e){
+      if(e.status===401){renderLogin('登入已過期，請重新登入');return;}
+      var a=localAnswer(q);
+      AI.msgs.push({role:'assistant',content:'AI 服務暫時無法使用，先用知識庫檢索回答你：\n\n'+a.content,refs:a.refs});
+    })
+    .then(function(){aiFinish();});
+}
+function aiInit(){
+  if(AI.fab)return;
+  AI.fab=document.createElement('button');
+  AI.fab.className='ai-fab';
+  AI.fab.setAttribute('aria-label','開啟 AI 小幫手');
+  AI.fab.textContent='✦ 問 AI';
+  AI.fab.addEventListener('click',function(){aiToggle(true);});
+  document.body.appendChild(AI.fab);
+  AI.panel=document.createElement('div');
+  AI.panel.className='ai-panel';
+  AI.panel.style.display='none';
+  AI.panel.innerHTML='<div class="ai-head"><div><div class="t">AI 小幫手</div>'+
+    '<div class="s">依知識庫內容回答 · 對話不會被儲存</div></div>'+
+    '<button class="ai-close" aria-label="關閉">✕</button></div>'+
+    '<div class="ai-msgs" id="aiMsgs"></div>'+
+    '<form class="ai-form" id="aiForm"><input class="ai-input" id="aiInput" type="text" maxlength="500" placeholder="直接輸入你的問題，例如：檔案要怎麼命名？" autocomplete="off">'+
+    '<button type="submit" class="ai-send" id="aiSend">送出</button></form>';
+  document.body.appendChild(AI.panel);
+  AI.panel.querySelector('.ai-close').addEventListener('click',function(){aiToggle(false);});
+  AI.panel.querySelector('#aiForm').addEventListener('submit',function(ev){ev.preventDefault();aiSend();});
+  AI.msgs.push({role:'assistant',content:'你好！直接輸入你的問題，我會根據知識庫內容回答並附上相關題號。找不到答案的話，建議直接發問。',refs:[]});
+}
+
+/* ================= render + events ================= */
+function pageTitle(){
+  var r=route();
+  if(r.view==='detail'){
+    var q=findByNum(r.num);
+    return q?qnumStr(q.num)+' '+q.title.slice(0,24)+'｜外包知識庫':'外包知識庫';
+  }
+  if(r.view==='project')return r.pname+'｜外包知識庫';
+  if(r.view==='compose')return '提出問題｜外包知識庫';
+  if(r.view==='admin')return '管理｜外包知識庫';
+  return '外包知識庫';
+}
+function render(){
+  if(!state){renderLogin();return;}
+  editingReplyId=null;
+  var r=route();
+  if(r.view==='detail')mountDetail(r.num);
+  else if(r.view==='project')mountProject(r.pname);
+  else if(r.view==='compose')mountCompose();
+  else if(r.view==='admin')mountAdmin();
+  else mountHome();
+  document.title=pageTitle();
+  window.scrollTo(0,0);
+}
+async function refresh(quiet){
+  try{
+    await loadData();
+    render();
+    if(!quiet)toast('資料已更新');
+  }catch(e){handleApiError(e,'更新失敗');}
+}
+window.addEventListener('hashchange',function(){
+  if(!state)return;
+  if(route().view!=='compose')editingQId=null;
+  render();
+});
+document.addEventListener('keydown',function(ev){
+  var tag=(ev.target&&ev.target.tagName)||'';
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  if(ev.key==='/'){var si=document.getElementById('searchInput');if(si){ev.preventDefault();si.focus();}}
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState!=='visible'||!state)return;
+  var ae=document.activeElement;
+  if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return;
+  if(Date.now()-loadedAt>5*60*1000)refresh(true);
+});
+root.addEventListener('click',function(ev){
+  var el=ev.target.closest('[data-act]');
+  if(!el)return;
+  var act=el.getAttribute('data-act');
+  if(act==='go-home'){ev.preventDefault();if(location.hash&&location.hash!=='#')location.hash='';else render();return;}
+  if(act==='go-project'){ev.preventDefault();location.hash='#p-'+encodeURIComponent(el.getAttribute('data-p'));return;}
+  if(act==='go-back-ctx'){ev.preventDefault();editingQId=null;if(ui.proj&&state.projects.indexOf(ui.proj)!==-1)location.hash='#p-'+encodeURIComponent(ui.proj);else location.hash='';return;}
+  if(act==='go-new'){ev.preventDefault();editingQId=null;location.hash='#new';return;}
+  if(act==='go-new-with-q'){ev.preventDefault();editingQId=null;location.hash='#new';return;}
+  if(act==='go-admin'){ev.preventDefault();location.hash='#admin';return;}
+  if(act==='go-pw'){ev.preventDefault();renderChangePw(false);return;}
+  if(act==='logout'){
+    api('/api/logout',{method:'POST'}).then(function(){renderLogin('已登出');}).catch(function(){renderLogin();});
+    return;
+  }
+  if(act==='chip-status'){ui.status=el.getAttribute('data-v');updateChips();updateResults();return;}
+  if(act==='chip-cat'){var v=el.getAttribute('data-v');ui.cat=(ui.cat===v)?null:v;updateChips();updateResults();return;}
+  if(act==='refresh'){refresh(false);return;}
+  if(act==='copy-link'){copyLink(parseInt(el.getAttribute('data-n'),10));return;}
+  if(act==='attach'){pickImage(el.getAttribute('data-target'));return;}
+  if(act==='edit-q'){editingQId=parseInt(el.getAttribute('data-n'),10);location.hash='#new';return;}
+  if(act==='cancel-edit-q'){editingQId=null;location.hash='#q-'+el.getAttribute('data-n');return;}
+  if(act==='del-q'){
+    (async function(){
+      var num=parseInt(el.getAttribute('data-n'),10);
+      var q=findByNum(num);if(!q)return;
+      var ok=await confirmModal('刪除 '+qnumStr(num)+'？','「'+q.title.slice(0,40)+'」及其所有回覆將被永久刪除。','刪除',true);
+      if(!ok)return;
+      try{
+        await api('/api/questions/'+num,{method:'DELETE'});
+        await loadData();
+        location.hash='#p-'+encodeURIComponent(q.project);
+        toast('已刪除');
+      }catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='edit-reply'){editingReplyId=parseInt(el.getAttribute('data-r'),10);mountDetail(route().num);var eb=document.getElementById('editReplyBody');if(eb)wireImagePaste(eb);return;}
+  if(act==='cancel-reply-edit'){editingReplyId=null;mountDetail(route().num);return;}
+  if(act==='save-reply-edit'){saveReplyEdit(parseInt(el.getAttribute('data-r'),10));return;}
+  if(act==='del-reply'){
+    (async function(){
+      var rid=parseInt(el.getAttribute('data-r'),10);
+      var ok=await confirmModal('刪除這則回覆？','刪除後無法復原，問題狀態會重新計算。','刪除',true);
+      if(!ok)return;
+      try{
+        await api('/api/replies/'+rid,{method:'DELETE'});
+        await loadData();
+        render();
+        toast('已刪除');
+      }catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='toggle-official'){
+    (async function(){
+      try{
+        await api('/api/replies/'+el.getAttribute('data-r')+'/official',{method:'POST',body:{official:el.getAttribute('data-v')==='1'}});
+        await loadData();
+        render();
+      }catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='reset-user'){
+    (async function(){
+      var email=el.getAttribute('data-e');
+      var ok=await confirmModal('重設密碼？',email+' 的密碼會重設為預設密碼 qwerty，對方下次登入時需重新設定。','重設');
+      if(!ok)return;
+      try{await api('/api/users/'+encodeURIComponent(email)+'/reset',{method:'POST',body:{}});toast('已重設為預設密碼');loadUsers();}catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='del-user'){
+    (async function(){
+      var email=el.getAttribute('data-e');
+      var ok=await confirmModal('移除成員？',email+' 將無法再登入知識庫（既有的問答內容會保留）。','移除',true);
+      if(!ok)return;
+      try{await api('/api/users/'+encodeURIComponent(email),{method:'DELETE'});toast('已移除');loadUsers();}catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='del-proj'){
+    (async function(){
+      var name=el.getAttribute('data-p');
+      var ok=await confirmModal('刪除專案「'+name+'」？','只有沒有任何問題的專案可以刪除。','刪除',true);
+      if(!ok)return;
+      try{await api('/api/projects/'+encodeURIComponent(name),{method:'DELETE'});await loadData();renderProjBox();toast('已刪除');}catch(e){handleApiError(e);}
+    })();
+    return;
+  }
+  if(act==='export-json'){exportJson();return;}
+  if(act==='export-md'){exportMd();return;}
+});
+
+enterApp();
+})();
+</script>
+</body>
+</html>

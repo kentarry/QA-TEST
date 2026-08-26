@@ -1,0 +1,21 @@
+# 本機開發用設定（無 AI 綁定；wrangler dev --local --config wrangler.dev.toml）
+name = "kb"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kb-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "0000000000000000000000000000000000"
+
+[vars]
+ADMIN_EMAILS = "raylee@igs.com.tw"
+DEFAULT_PASSWORD = "qwerty"
