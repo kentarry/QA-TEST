@@ -102,6 +102,9 @@ mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
 .pill.proj{background:var(--accent-soft);color:var(--accent-ink)}
 .empty{padding:56px 20px;text-align:center;color:var(--muted)}
 .empty .big{font-family:"Noto Serif TC",serif;font-size:18px;color:var(--ink);margin-bottom:8px}
+.notice{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0 0;padding:12px 16px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;background:var(--surface);color:var(--muted);font-size:13.5px;line-height:1.75}
+.notice b{color:var(--ink);font-weight:700;margin-right:4px}
+.notice .btn{flex-shrink:0}
 
 .backrow{margin:18px 0 4px}
 .dhead{padding:16px 0 18px;border-bottom:1px solid var(--line)}
@@ -211,6 +214,8 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function pad(n){return (n<10?'0':'')+n;}
 function fmtDate(iso){var d=new Date(iso);if(isNaN(d.getTime()))return '';return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
 function debounce(fn,ms){var t;return function(){var a=arguments,s=this;clearTimeout(t);t=setTimeout(function(){fn.apply(s,a);},ms);};}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 
 function hlEsc(text,parts){
   text=String(text==null?'':text);
@@ -418,14 +423,24 @@ function pillHtml(status){
   return status==='answered'?'<span class="pill answered">已回覆</span>':'<span class="pill open">待回覆</span>';
 }
 function qnumStr(n){return 'Q-'+(n<10?'00':(n<100?'0':''))+n;}
+function lastActivity(q){return q.replies.length?q.replies[q.replies.length-1].createdAt:q.createdAt;}
+function snippetFor(q,parts){
+  var raw=String(q.body).replace(/!\[[^\]\n]*\]\([^)]*\)/g,'[附圖]').replace(/\s+/g,' ');
+  if(parts&&parts.length){
+    var low=raw.toLowerCase(),best=-1;
+    parts.forEach(function(p){if(!p||p.length<2)return;var i=low.indexOf(p);if(i!==-1&&(best===-1||i<best))best=i;});
+    if(best>40)return '…'+raw.slice(best-40,best+80);
+  }
+  return raw.slice(0,120);
+}
 function rowHtml(q,parts,showProject){
-  var lastActive=q.replies.length?q.replies[q.replies.length-1].createdAt:q.createdAt;
+  var lastActive=lastActivity(q);
   var sideInfo=showProject?esc(q.project)+' · '+esc(q.category||''):esc(q.category||'');
   return '<a class="qrow" href="#q-'+q.num+'">'+
     '<span class="stripe '+(q.status==='answered'?'answered':'open')+'"></span>'+
     '<span class="qnum">'+qnumStr(q.num)+'</span>'+
     '<span class="qmain"><span class="qtitle">'+hlEsc(q.title,parts)+'</span>'+
-    '<span class="qsnippet">'+hlEsc(String(q.body).replace(/!\[[^\]\n]*\]\([^)]*\)/g,'[附圖]').replace(/\s+/g,' ').slice(0,120),parts)+'</span></span>'+
+    '<span class="qsnippet">'+hlEsc(snippetFor(q,parts),parts)+'</span></span>'+
     '<span class="qside">'+pillHtml(q.status)+
     '<span class="when">'+fmtDate(lastActive).slice(0,10)+' · '+q.replies.length+' 則回覆</span>'+
     '<span class="tagline-cat">'+sideInfo+'</span></span></a>';
@@ -453,17 +468,28 @@ function homeProjectsHtml(){
   }).join('');
   return '<div class="home-sect"><h2 class="sect-title" style="margin:0">選擇專案</h2></div><div class="projgrid">'+cards+'</div>';
 }
+function latestHtml(){
+  if(!state.questions.length)return '';
+  var list=state.questions.slice().sort(function(a,b){return lastActivity(b).localeCompare(lastActivity(a));}).slice(0,8);
+  return '<h2 class="sect-title" style="margin-top:34px">最新動態</h2><div class="qlist">'+
+    list.map(function(q){return rowHtml(q,null,true);}).join('')+'</div>';
+}
+function onboardingHtml(){
+  if(lsGet('kb:onboarded'))return '';
+  return '<div class="notice" id="onboard"><div><b>第一次使用？</b>瀏覽與搜尋不需要任何帳號；點「提出問題」會開啟 GitHub 表單（需免費 GitHub 帳號，描述欄可直接貼截圖）；管理者回覆後，答案會永久存檔在這裡供大家查閱。</div>'+
+    '<button class="btn btn-ghost" data-act="dismiss-onboard">知道了</button></div>';
+}
 function mountHome(){
   ui.proj=null;
   resetFiltersFor('home');
-  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+onboardingHtml()+
     '<div class="toolbar"><div class="search-box">'+svgSearch()+
     '<input class="search-input" id="searchInput" type="search" placeholder="搜尋全部專案，或直接輸入你想問的問題…" value="'+esc(ui.q)+'" aria-label="搜尋全部專案"></div>'+
     '<button class="btn btn-primary" data-act="go-new">提出問題</button>'+
     '</div>'+
     '<div class="result-note" id="resultNote" aria-live="polite"></div>'+
     '<div class="qlist" id="results"></div>'+
-    '<div id="homeProjects">'+homeProjectsHtml()+'</div>'+
+    '<div id="homeProjects">'+homeProjectsHtml()+latestHtml()+'</div>'+
     footHtml()+'</div>';
   var si=document.getElementById('searchInput');
   si.addEventListener('input',debounce(function(){ui.q=si.value;updateHomeResults();},180));
@@ -573,12 +599,19 @@ function updateResults(){
 }
 
 /* ---------- detail ---------- */
+var retriedNums={};
 function mountDetail(num){
   var q=findByNum(num);
   if(!q){
+    var willRetry=!retriedNums[num];
     root.innerHTML='<div class="wrap">'+mastheadHtml()+
-      '<div class="empty"><div class="big">找不到編號 '+qnumStr(num)+' 的問題</div>它可能剛送出還沒同步（約 1–2 分鐘），或已被移除。</div>'+
+      '<div class="empty"><div class="big">找不到編號 '+qnumStr(num)+' 的問題</div>'+
+      (willRetry?'它可能剛送出還沒同步，正在自動重新整理…':'它可能還在同步中（約 1–2 分鐘），或已被移除。')+'</div>'+
       '<div style="text-align:center"><button class="btn" data-act="refresh">重新整理資料</button> <button class="btn" data-act="go-home">回到專案列表</button></div>'+footHtml()+'</div>';
+    if(willRetry){
+      retriedNums[num]=true;
+      setTimeout(function(){if(route().view==='detail'&&route().num===num)refresh(true);},1500);
+    }
     return;
   }
   ui.proj=q.project;
@@ -609,7 +642,8 @@ function mountDetail(num){
     '</div>'+
     '<div class="sect-title">回覆（'+q.replies.length+'）</div>'+repliesHtml+
     (q.url?'<div class="answer-cta"><span>要回覆或補充這個問題？到 GitHub 的問題頁留言即可，留言支援直接貼上截圖；回覆內容包含「[正式解答]」字樣，此題就會標記為已回覆。</span>'+
-    '<a class="btn" href="'+esc(q.url)+'" target="_blank" rel="noopener">前往回覆</a></div>':'')+
+    '<span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="linkbtn" data-act="copy-official">複製解答範本</button>'+
+    '<a class="btn" href="'+esc(q.url)+'" target="_blank" rel="noopener">前往回覆</a></span></div>':'')+
     footHtml()+'</div>';
 }
 
@@ -655,10 +689,14 @@ function updateSimilar(){
   }).join('')+'<div class="sim-empty" style="margin-top:6px">點進去看也沒關係，返回後標題還會在。</div>';
 }
 function val(id){var el=document.getElementById(id);return el?el.value:'';}
+var pendingUntil=0,pendingBaseCount=0;
 function goGithub(){
   var url=newIssueUrl(val('cProj'),String(val('cTitle')).trim());
   if(!url){toast('網站尚未完成首次建置，請稍後再試');return;}
+  pendingUntil=Date.now()+10*60*1000;
+  pendingBaseCount=state.questions.length;
   window.open(url,'_blank','noopener');
+  toast('已開啟 GitHub 表單分頁；送出後回到這裡，網站會自動更新');
 }
 
 /* ================= exports ================= */
@@ -710,6 +748,16 @@ function copyLink(num){
 }
 
 /* ================= render + events ================= */
+function pageTitle(){
+  var r=route();
+  if(r.view==='detail'){
+    var q=findByNum(r.num);
+    return q?qnumStr(q.num)+' '+q.title.slice(0,24)+'｜外包知識庫':'外包知識庫';
+  }
+  if(r.view==='project')return r.pname+'｜外包知識庫';
+  if(r.view==='ask')return '提出問題｜外包知識庫';
+  return '外包知識庫';
+}
 function render(){
   if(!state)return;
   var r=route();
@@ -717,12 +765,18 @@ function render(){
   else if(r.view==='project')mountProject(r.pname);
   else if(r.view==='ask')mountAsk();
   else mountHome();
+  document.title=pageTitle();
   window.scrollTo(0,0);
 }
 function refresh(quiet){
   fetchData().then(function(){
     render();
-    if(!quiet)toast('資料已更新');
+    if(pendingUntil&&state.questions.length>pendingBaseCount){
+      pendingUntil=0;
+      toast('你的新問題已出現在網站上');
+    }else if(!quiet){
+      toast('資料已更新');
+    }
   }).catch(function(){
     if(!quiet)toast('更新失敗，請稍後再試');
   });
@@ -734,11 +788,12 @@ document.addEventListener('keydown',function(ev){
   if(ev.key==='/'){var si=document.getElementById('searchInput');if(si){ev.preventDefault();si.focus();}}
 });
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'&&state&&Date.now()-loadedAt>5*60*1000){
-    var ae=document.activeElement;
-    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return;
-    refresh(true);
-  }
+  if(document.visibilityState!=='visible'||!state)return;
+  var ae=document.activeElement;
+  if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return;
+  var pending=Date.now()<pendingUntil;
+  var staleMs=pending?15*1000:5*60*1000;
+  if(Date.now()-loadedAt>staleMs)refresh(true);
 });
 root.addEventListener('click',function(ev){
   var el=ev.target.closest('[data-act]');
@@ -753,6 +808,15 @@ root.addEventListener('click',function(ev){
   if(act==='chip-status'){ui.status=el.getAttribute('data-v');updateChips();updateResults();return;}
   if(act==='chip-cat'){var v=el.getAttribute('data-v');ui.cat=(ui.cat===v)?null:v;updateChips();updateResults();return;}
   if(act==='refresh'){refresh(false);return;}
+  if(act==='dismiss-onboard'){lsSet('kb:onboarded','1');var ob=document.getElementById('onboard');if(ob)ob.remove();return;}
+  if(act==='copy-official'){
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText('[正式解答]\n\n').then(function(){toast('已複製，貼到 GitHub 留言開頭，接著寫答案即可');},function(){toast('無法自動複製，請手動輸入 [正式解答]');});
+      }else{toast('無法自動複製，請手動輸入 [正式解答]');}
+    }catch(e){toast('無法自動複製，請手動輸入 [正式解答]');}
+    return;
+  }
   if(act==='copy-link'){copyLink(parseInt(el.getAttribute('data-n'),10));return;}
   if(act==='export-json'){exportJson();return;}
   if(act==='export-md'){exportMd();return;}
