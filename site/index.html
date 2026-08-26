@@ -127,6 +127,7 @@ mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
 .reply-head .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;color:var(--muted)}
 .reply-head .edited{font-size:11.5px;color:var(--muted)}
 .badge-official{display:inline-block;font-size:11.5px;padding:1px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500}
+.badge-ai{display:inline-block;font-size:11.5px;padding:1px 9px;border-radius:999px;border:1px dashed var(--line);color:var(--muted)}
 .noreply{color:var(--muted);font-size:14px;padding:18px 2px}
 .answer-cta{border:1px dashed var(--line);border-radius:6px;background:var(--surface);padding:16px 18px;margin:14px 0;color:var(--muted);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 
@@ -623,6 +624,7 @@ function mountDetail(num){
       return '<div class="reply'+(r.official?' official':'')+'">'+
         '<div class="reply-head"><span class="who">'+esc(r.author)+'</span>'+
         (r.official?'<span class="badge-official">正式解答</span>':'')+
+        (r.ai?'<span class="badge-ai">AI 初步回覆・僅供參考</span>':'')+
         '<span class="when">'+fmtDate(r.createdAt)+'</span>'+
         (r.editedAt?'<span class="edited">（已編輯）</span>':'')+
         '</div><div class="rich">'+renderText(r.body)+'</div></div>';
@@ -856,6 +858,32 @@ function aiToggle(show){
     aiRenderMsgs();
   }
 }
+function localAnswer(qstr){
+  if(!state)return {content:'資料還在載入中，請稍候幾秒再試一次。',refs:[]};
+  var res=(searchQuestions(qstr)||[]).slice(0,3);
+  var refs=res.map(function(r){return {num:r.q.num,title:r.q.title};});
+  if(!res.length||res[0].score<1.2){
+    var tail=res.length?'下面列出幾題可能沾得上邊的，也可以看看。':'';
+    return {content:'知識庫目前沒有這一題的相關資料。'+tail+'\n\n建議點右上角「提出問題」發問——送出後 AI 會先給你初步回覆，管理者確認後會補上正式解答。',refs:refs};
+  }
+  var top=res[0].q;
+  var official=(top.replies||[]).filter(function(r){return r.official;});
+  var content;
+  if(official.length){
+    var ans=official.map(function(r){return r.body;}).join('\n');
+    var cut=ans.length>500;
+    content='這題和 '+qnumStr(top.num)+'「'+top.title+'」最相關，正式解答如下：\n\n'+ans.slice(0,500)+(cut?'…\n\n（內容較長，完整版請點 '+qnumStr(top.num)+' 查看）':'');
+  }else{
+    content='已經有人問過類似的問題：'+qnumStr(top.num)+'「'+top.title+'」，目前還在等待管理者回覆。可以點進去追蹤進度，或在該題的 GitHub 頁面補充你的情況。';
+  }
+  return {content:content,refs:refs};
+}
+function aiFinish(){
+  AI.busy=false;
+  var b=document.getElementById('aiSend');if(b)b.disabled=false;
+  aiRenderMsgs();
+  var i2=document.getElementById('aiInput');if(i2)i2.focus();
+}
 function aiSend(){
   var inp=document.getElementById('aiInput');
   var q=inp?inp.value.trim():'';
@@ -865,6 +893,14 @@ function aiSend(){
   AI.busy=true;
   var btn=document.getElementById('aiSend');if(btn)btn.disabled=true;
   aiRenderMsgs();
+  if(!AI.endpoint){
+    setTimeout(function(){
+      var a=localAnswer(q);
+      AI.msgs.push({role:'assistant',content:a.content,refs:a.refs});
+      aiFinish();
+    },250);
+    return;
+  }
   fetch(AI.endpoint.replace(/\/+$/,'')+'/ask',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -875,17 +911,13 @@ function aiSend(){
   }).then(function(res){
     AI.msgs.push({role:'assistant',content:String(res.answer||'（沒有收到回覆內容）').trim(),refs:res.refs||[]});
   }).catch(function(){
-    AI.msgs.push({role:'assistant',content:'目前連不上 AI 服務，請稍後再試。你也可以用上方的搜尋列查詢，或點「提出問題」直接發問。',refs:[]});
-  }).then(function(){
-    AI.busy=false;
-    var b=document.getElementById('aiSend');if(b)b.disabled=false;
-    aiRenderMsgs();
-    var i2=document.getElementById('aiInput');if(i2)i2.focus();
-  });
+    var a=localAnswer(q);
+    AI.msgs.push({role:'assistant',content:'AI 服務暫時連不上，先用知識庫檢索回答你：\n\n'+a.content,refs:a.refs});
+  }).then(function(){aiFinish();});
 }
 function aiInit(endpoint){
-  if(!endpoint||AI.fab)return;
-  AI.endpoint=endpoint;
+  if(AI.fab)return;
+  AI.endpoint=endpoint||'';
   AI.fab=document.createElement('button');
   AI.fab.className='ai-fab';
   AI.fab.setAttribute('aria-label','開啟 AI 小幫手');
@@ -896,7 +928,7 @@ function aiInit(endpoint){
   AI.panel.className='ai-panel';
   AI.panel.style.display='none';
   AI.panel.innerHTML='<div class="ai-head"><div><div class="t">AI 小幫手</div>'+
-    '<div class="s">依知識庫內容回答 · 對話只在你的瀏覽器，不會公開</div></div>'+
+    '<div class="s">即時從知識庫找答案 · 對話只在你的瀏覽器，不會公開</div></div>'+
     '<button class="ai-close" aria-label="關閉">✕</button></div>'+
     '<div class="ai-msgs" id="aiMsgs"></div>'+
     '<form class="ai-form" id="aiForm"><input class="ai-input" id="aiInput" type="text" maxlength="500" placeholder="直接輸入你的問題，例如：檔案要怎麼命名？" autocomplete="off">'+
@@ -904,14 +936,17 @@ function aiInit(endpoint){
   document.body.appendChild(AI.panel);
   AI.panel.querySelector('.ai-close').addEventListener('click',function(){aiToggle(false);});
   AI.panel.querySelector('#aiForm').addEventListener('submit',function(ev){ev.preventDefault();aiSend();});
-  AI.msgs.push({role:'assistant',content:'你好！我是知識庫 AI 小幫手，會根據已存檔的問答回答你。直接輸入問題就可以了；找不到答案的話，我會建議你去發問。',refs:[]});
+  AI.msgs.push({role:'assistant',content:'你好！直接輸入你的問題，我會立刻從知識庫找出答案與相關問答。如果還沒有人問過，建議你直接發問——送出後 AI 也會先給一則初步回覆。',refs:[]});
 }
-fetch('config.json?t='+Date.now(),{cache:'no-store'})
+var configPromise=fetch('config.json?t='+Date.now(),{cache:'no-store'})
   .then(function(r){return r.ok?r.json():null;})
-  .then(function(cfg){if(cfg&&cfg.aiEndpoint)aiInit(String(cfg.aiEndpoint));})
-  .catch(function(){});
+  .catch(function(){return null;});
 
-fetchData().then(render).catch(function(err){
+Promise.all([fetchData(),configPromise]).then(function(vals){
+  var cfg=vals[1];
+  render();
+  aiInit(cfg&&cfg.aiEndpoint?String(cfg.aiEndpoint):'');
+}).catch(function(err){
   root.innerHTML='<div class="wrap"><div class="boot">無法載入知識庫資料（'+esc(err&&err.message||'unknown')+'）。<br><br>'+
     '<button class="btn btn-primary" id="retryBtn">重試</button></div></div>';
   document.getElementById('retryBtn').addEventListener('click',function(){location.reload();});

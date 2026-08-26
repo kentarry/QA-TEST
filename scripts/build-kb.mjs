@@ -95,13 +95,18 @@ for (const issue of rawIssues) {
   let replies = [];
   if (issue.comments > 0) {
     const comments = await ghPaged(`/repos/${REPO}/issues/${issue.number}/comments`);
-    replies = comments.map((c) => ({
-      author: c.user ? c.user.login : "unknown",
-      body: stripMarker(c.body),
-      createdAt: c.created_at,
-      editedAt: c.updated_at !== c.created_at ? c.updated_at : null,
-      official: String(c.body || "").includes(MARKER),
-    }));
+    replies = comments.map((c) => {
+      const login = c.user ? c.user.login : "unknown";
+      const isBot = /\[bot\]$/.test(login) || login === "github-actions";
+      return {
+        author: isBot ? "AI 助理" : login,
+        ai: isBot || undefined,
+        body: stripMarker(c.body),
+        createdAt: c.created_at,
+        editedAt: c.updated_at !== c.created_at ? c.updated_at : null,
+        official: !isBot && String(c.body || "").includes(MARKER),
+      };
+    });
   }
 
   const answered = replies.some((r) => r.official) || issue.state === "closed";

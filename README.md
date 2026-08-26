@@ -29,13 +29,13 @@
 
 發問表單的「詳細描述」與 issue 留言都支援直接貼上／拖曳圖片（GitHub 內建功能），網站會把這些圖片直接顯示在問題與回覆內容中（可點開看原圖）。
 
-## AI 小幫手
+## AI 功能（不需要任何額外帳號）
 
-網站右下角的「✦ 問 AI」聊天視窗由 Cloudflare Worker（[worker/](worker/)）提供：它讀取本站的 kb-data.json，檢索相關問答後交給 Workers AI 模型（免費額度）生成回答，並附上題號連結。對話不儲存、不公開。
+**1. 新問題的 AI 初步回覆** — [.github/workflows/ai-draft.yml](.github/workflows/ai-draft.yml) ＋ [scripts/ai-draft.mjs](scripts/ai-draft.mjs)：外包送出問題後，Actions 透過 **GitHub Models**（免費額度，用內建 GITHUB_TOKEN）檢索知識庫既有問答並生成初步回覆，以留言貼在該題底下。AI 留言不含 `[正式解答]` 標記，問題維持「待回覆」；網站上會顯示「AI 初步回覆・僅供參考」徽章。在發問內文加上 `[skip-ai]` 可略過。換模型：改 ai-draft.mjs 開頭的 `MODEL`。
 
-- 部署：`cd worker && npx wrangler deploy`（需先 `npx wrangler login`）
-- 部署後把 Worker 網址填入 [site/config.json](site/config.json) 的 `aiEndpoint` 再 push；`aiEndpoint` 留空則網站不顯示 AI 按鈕
-- 換模型：改 [worker/src/index.js](worker/src/index.js) 開頭的 `MODEL` 常數
+**2. 網站「✦ 問 AI」聊天視窗**：預設為**即時本地檢索模式**——在使用者瀏覽器內用相似度搜尋直接找出正式解答回覆，零延遲、完全私密、不經過任何伺服器。
+
+（進階選項）若想讓聊天視窗改用真正的生成式模型，可部署 [worker/](worker/) 的 Cloudflare Worker，並把網址填入 [site/config.json](site/config.json) 的 `aiEndpoint`；留空即維持本地模式。
 
 ## 注意事項
 
