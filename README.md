@@ -29,13 +29,13 @@
 
 發問表單的「詳細描述」與 issue 留言都支援直接貼上／拖曳圖片（GitHub 內建功能），網站會把這些圖片直接顯示在問題與回覆內容中（可點開看原圖）。
 
-## AI 功能（不需要任何額外帳號）
+## AI 小幫手
 
-**1. 新問題的 AI 初步回覆** — [.github/workflows/ai-draft.yml](.github/workflows/ai-draft.yml) ＋ [scripts/ai-draft.mjs](scripts/ai-draft.mjs)：外包送出問題後，Actions 透過 **GitHub Models**（免費額度，用內建 GITHUB_TOKEN）檢索知識庫既有問答並生成初步回覆，以留言貼在該題底下。AI 留言不含 `[正式解答]` 標記，問題維持「待回覆」；網站上會顯示「AI 初步回覆・僅供參考」徽章。在發問內文加上 `[skip-ai]` 可略過。換模型：改 ai-draft.mjs 開頭的 `MODEL`。
+網站右下角「✦ 問 AI」聊天視窗，預設為**即時本地檢索模式**：在使用者瀏覽器內以相似度搜尋直接找出最相關的正式解答回覆（附題號連結），零延遲、完全私密、不需要任何帳號、不經過任何伺服器。
 
-**2. 網站「✦ 問 AI」聊天視窗**：預設為**即時本地檢索模式**——在使用者瀏覽器內用相似度搜尋直接找出正式解答回覆，零延遲、完全私密、不經過任何伺服器。
+（進階選項）若想升級為真正的生成式模型回答，可部署 [worker/](worker/) 的 Cloudflare Worker（免費方案），並把網址填入 [site/config.json](site/config.json) 的 `aiEndpoint` 後 push；留空即維持本地模式。若填入的服務斷線，聊天視窗會自動退回本地檢索。
 
-（進階選項）若想讓聊天視窗改用真正的生成式模型，可部署 [worker/](worker/) 的 Cloudflare Worker，並把網址填入 [site/config.json](site/config.json) 的 `aiEndpoint`；留空即維持本地模式。
+（歷史備註：曾嘗試以 GitHub Models 做新問題自動回覆，但該服務於 2026-08 進入官方退役期（API 回傳 `github_models_retirement_brownout`），已移除，程式保留在 git 歷史中。網站與建置腳本仍支援顯示機器人留言的「AI 初步回覆」徽章。）
 
 ## 注意事項
 
