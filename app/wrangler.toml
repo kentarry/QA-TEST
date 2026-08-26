@@ -12,11 +12,11 @@ binding = "AI"
 [[d1_databases]]
 binding = "DB"
 database_name = "kb-db"
-database_id = "PLACEHOLDER_D1_ID"
+database_id = "cfc8337c-47f4-49fa-a800-d3505f750b1a"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "PLACEHOLDER_KV_ID"
+id = "f3b6e90143014e4ba552069681da304b"
 
 [vars]
 ADMIN_EMAILS = "raylee@igs.com.tw"
