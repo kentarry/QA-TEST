@@ -158,8 +158,33 @@ mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
 .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(8px);bottom:28px;background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:5px;font-size:14px;box-shadow:var(--shadow);z-index:80;opacity:0;transition:opacity .18s,transform .18s;max-width:86vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ---------- AI chat ---------- */
+.ai-fab{position:fixed;right:22px;bottom:22px;z-index:60;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:none;background:var(--accent);color:var(--on-accent);font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.ai-fab:hover{filter:brightness(1.07)}
+.ai-panel{position:fixed;right:22px;bottom:22px;z-index:65;width:min(380px,calc(100vw - 24px));height:min(560px,calc(100vh - 48px));background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.ai-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ai-head .t{font-weight:700;font-size:15px}
+.ai-head .s{font-size:11.5px;color:var(--muted)}
+.ai-close{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:4px}
+.ai-close:hover{background:var(--surface2)}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:86%;padding:9px 13px;border-radius:10px;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.ai-msg.user{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:3px}
+.ai-msg.bot{align-self:flex-start;background:var(--surface2);border-bottom-left-radius:3px}
+.ai-msg.bot a{color:var(--accent-ink);font-weight:500}
+.ai-refs{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:86%}
+.ai-refs a{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);text-decoration:none}
+.ai-typing{align-self:flex-start;color:var(--muted);font-size:13px;padding:4px 13px}
+.ai-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.ai-input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:14px}
+.ai-input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.ai-send{padding:10px 16px;border-radius:6px;border:none;background:var(--accent);color:var(--on-accent);font-weight:500;cursor:pointer}
+.ai-send[disabled]{opacity:.5;cursor:not-allowed}
+
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (max-width:720px){
+  .ai-panel{right:12px;bottom:12px}
+  .ai-fab{right:16px;bottom:16px}
   .masthead{flex-direction:column;align-items:flex-start;gap:8px;padding-top:22px}
   .mast-right{align-items:flex-start}
   .mast-stats{text-align:left}
@@ -583,7 +608,7 @@ function mountDetail(num){
     (q.url?'<a class="linkbtn" href="'+esc(q.url)+'" target="_blank" rel="noopener">在 GitHub 開啟</a>':'')+
     '</div>'+
     '<div class="sect-title">回覆（'+q.replies.length+'）</div>'+repliesHtml+
-    (q.url?'<div class="answer-cta"><span>要回覆或補充這個問題？到 GitHub 的問題頁留言即可；回覆內容包含「[正式解答]」字樣，此題就會標記為已回覆。</span>'+
+    (q.url?'<div class="answer-cta"><span>要回覆或補充這個問題？到 GitHub 的問題頁留言即可，留言支援直接貼上截圖；回覆內容包含「[正式解答]」字樣，此題就會標記為已回覆。</span>'+
     '<a class="btn" href="'+esc(q.url)+'" target="_blank" rel="noopener">前往回覆</a></div>':'')+
     footHtml()+'</div>';
 }
@@ -732,6 +757,95 @@ root.addEventListener('click',function(ev){
   if(act==='export-json'){exportJson();return;}
   if(act==='export-md'){exportMd();return;}
 });
+
+/* ================= AI chat (密聊小幫手) ================= */
+var AI={endpoint:'',busy:false,msgs:[],panel:null,fab:null};
+function aiQLinkify(escaped){
+  return escaped.replace(/Q-0*(\d{1,7})/g,function(m,n){return '<a href="#q-'+n+'">'+m+'</a>';});
+}
+function aiRenderMsgs(){
+  var box=document.getElementById('aiMsgs');if(!box)return;
+  var html='';
+  AI.msgs.forEach(function(m){
+    if(m.role==='user'){
+      html+='<div class="ai-msg user">'+esc(m.content)+'</div>';
+    }else{
+      html+='<div class="ai-msg bot">'+aiQLinkify(esc(m.content))+'</div>';
+      if(m.refs&&m.refs.length){
+        html+='<div class="ai-refs">'+m.refs.map(function(r){
+          return '<a href="#q-'+r.num+'">'+qnumStr(r.num)+' '+esc(String(r.title).slice(0,18))+'</a>';
+        }).join('')+'</div>';
+      }
+    }
+  });
+  if(AI.busy)html+='<div class="ai-typing">AI 思考中…</div>';
+  box.innerHTML=html;
+  box.scrollTop=box.scrollHeight;
+}
+function aiToggle(show){
+  if(!AI.panel)return;
+  AI.panel.style.display=show?'flex':'none';
+  AI.fab.style.display=show?'none':'flex';
+  if(show){
+    var inp=document.getElementById('aiInput');
+    if(inp)inp.focus();
+    aiRenderMsgs();
+  }
+}
+function aiSend(){
+  var inp=document.getElementById('aiInput');
+  var q=inp?inp.value.trim():'';
+  if(!q||AI.busy)return;
+  AI.msgs.push({role:'user',content:q});
+  inp.value='';
+  AI.busy=true;
+  var btn=document.getElementById('aiSend');if(btn)btn.disabled=true;
+  aiRenderMsgs();
+  fetch(AI.endpoint.replace(/\/+$/,'')+'/ask',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({question:q,history:AI.msgs.slice(-9,-1).map(function(m){return {role:m.role,content:m.content};})})
+  }).then(function(r){
+    if(!r.ok)throw new Error('http '+r.status);
+    return r.json();
+  }).then(function(res){
+    AI.msgs.push({role:'assistant',content:String(res.answer||'（沒有收到回覆內容）').trim(),refs:res.refs||[]});
+  }).catch(function(){
+    AI.msgs.push({role:'assistant',content:'目前連不上 AI 服務，請稍後再試。你也可以用上方的搜尋列查詢，或點「提出問題」直接發問。',refs:[]});
+  }).then(function(){
+    AI.busy=false;
+    var b=document.getElementById('aiSend');if(b)b.disabled=false;
+    aiRenderMsgs();
+    var i2=document.getElementById('aiInput');if(i2)i2.focus();
+  });
+}
+function aiInit(endpoint){
+  if(!endpoint||AI.fab)return;
+  AI.endpoint=endpoint;
+  AI.fab=document.createElement('button');
+  AI.fab.className='ai-fab';
+  AI.fab.setAttribute('aria-label','開啟 AI 小幫手');
+  AI.fab.textContent='✦ 問 AI';
+  AI.fab.addEventListener('click',function(){aiToggle(true);});
+  document.body.appendChild(AI.fab);
+  AI.panel=document.createElement('div');
+  AI.panel.className='ai-panel';
+  AI.panel.style.display='none';
+  AI.panel.innerHTML='<div class="ai-head"><div><div class="t">AI 小幫手</div>'+
+    '<div class="s">依知識庫內容回答 · 對話只在你的瀏覽器，不會公開</div></div>'+
+    '<button class="ai-close" aria-label="關閉">✕</button></div>'+
+    '<div class="ai-msgs" id="aiMsgs"></div>'+
+    '<form class="ai-form" id="aiForm"><input class="ai-input" id="aiInput" type="text" maxlength="500" placeholder="直接輸入你的問題，例如：檔案要怎麼命名？" autocomplete="off">'+
+    '<button type="submit" class="ai-send" id="aiSend">送出</button></form>';
+  document.body.appendChild(AI.panel);
+  AI.panel.querySelector('.ai-close').addEventListener('click',function(){aiToggle(false);});
+  AI.panel.querySelector('#aiForm').addEventListener('submit',function(ev){ev.preventDefault();aiSend();});
+  AI.msgs.push({role:'assistant',content:'你好！我是知識庫 AI 小幫手，會根據已存檔的問答回答你。直接輸入問題就可以了；找不到答案的話，我會建議你去發問。',refs:[]});
+}
+fetch('config.json?t='+Date.now(),{cache:'no-store'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(cfg){if(cfg&&cfg.aiEndpoint)aiInit(String(cfg.aiEndpoint));})
+  .catch(function(){});
 
 fetchData().then(render).catch(function(err){
   root.innerHTML='<div class="wrap"><div class="boot">無法載入知識庫資料（'+esc(err&&err.message||'unknown')+'）。<br><br>'+

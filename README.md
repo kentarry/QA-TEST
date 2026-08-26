@@ -25,6 +25,18 @@
 
 **手動登錄問答**（例如把 LINE 上問過的問題補進來）：直接開新 issue，加上 `question` 標籤，用發問表單格式即可；沒有表單格式時，整段內文會當作問題描述、發問者顯示為 GitHub 帳號。
 
+## 圖片
+
+發問表單的「詳細描述」與 issue 留言都支援直接貼上／拖曳圖片（GitHub 內建功能），網站會把這些圖片直接顯示在問題與回覆內容中（可點開看原圖）。
+
+## AI 小幫手
+
+網站右下角的「✦ 問 AI」聊天視窗由 Cloudflare Worker（[worker/](worker/)）提供：它讀取本站的 kb-data.json，檢索相關問答後交給 Workers AI 模型（免費額度）生成回答，並附上題號連結。對話不儲存、不公開。
+
+- 部署：`cd worker && npx wrangler deploy`（需先 `npx wrangler login`）
+- 部署後把 Worker 網址填入 [site/config.json](site/config.json) 的 `aiEndpoint` 再 push；`aiEndpoint` 留空則網站不顯示 AI 按鈕
+- 換模型：改 [worker/src/index.js](worker/src/index.js) 開頭的 `MODEL` 常數
+
 ## 注意事項
 
 - 這是公開網站與公開 repo：**請勿在問答中貼帳號密碼、金鑰、未公開素材等機密內容**。
