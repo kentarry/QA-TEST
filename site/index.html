@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>外包知識庫</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Noto+Sans+TC:wght@400;500;700&amp;family=Noto+Serif+TC:wght@600;700&amp;display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F3F6F5; --surface:#FFFFFF; --surface2:#ECF2F1;
+  --ink:#182726; --muted:#5B6E6C; --line:#D8E2E0; --line-soft:#E5ECEA;
+  --accent:#0E7C86; --accent-ink:#0A5A62; --on-accent:#FFFFFF; --accent-soft:#E0EFF0;
+  --open:#96630F; --open-bg:#F6ECD7; --ok:#2F7D46; --ok-bg:#E1F0E5;
+  --danger:#B3403A; --danger-bg:#F8E9E8; --mark:#FFE9A8;
+  --shadow:0 10px 30px rgba(24,39,38,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1719; --surface:#151F21; --surface2:#1B282B;
+    --ink:#E4EDEB; --muted:#8FA5A2; --line:#263A3D; --line-soft:#1F3134;
+    --accent:#4FC2CC; --accent-ink:#7AD4DC; --on-accent:#062A2E; --accent-soft:#123236;
+    --open:#E0A94F; --open-bg:#33290F; --ok:#66C284; --ok-bg:#12301C;
+    --danger:#E0837D; --danger-bg:#3A1F1D; --mark:#5A4A12;
+    --shadow:0 10px 30px rgba(0,0,0,.55);
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:15px; line-height:1.65;
+}
+h1,h2,h3,p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent-ink)}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 72px}
+
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:30px 0 18px;border-bottom:1px solid var(--line)}
+.wordmark{font-family:"Noto Serif TC",serif;font-weight:700;font-size:27px;letter-spacing:.04em;line-height:1.2}
+.wordmark a{color:inherit;text-decoration:none}
+.tagline{color:var(--muted);font-size:13px;margin-top:6px}
+.mast-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.mast-stats{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px;color:var(--muted);text-align:right;white-space:nowrap}
+.mast-stats b{color:var(--ink);font-weight:500}
+.mast-stats .warn{color:var(--open);font-weight:500}
+
+.home-sect{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:26px 0 2px}
+.projgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:12px}
+.projcard{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:18px 20px 16px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:7px;transition:border-color .12s}
+.projcard:hover{border-color:var(--accent)}
+.projcard .pname{font-family:"Noto Serif TC",serif;font-size:19px;font-weight:700;line-height:1.35}
+.projcard .pstats{font-size:12px;color:var(--muted);font-family:"IBM Plex Mono",Consolas,monospace}
+.pwarn{color:var(--open);font-weight:500}
+.proj-head{padding:20px 0 4px}
+.proj-title{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:700;line-height:1.3}
+.proj-sub{color:var(--muted);font-size:12.5px;margin-top:6px;font-family:"IBM Plex Mono",Consolas,monospace}
+
+.toolbar{display:flex;gap:10px;margin:20px 0 12px;flex-wrap:wrap}
+.search-box{flex:1;min-width:240px;position:relative}
+.search-input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);background:var(--surface);border-radius:4px;font-size:15px}
+.search-input::placeholder{color:var(--muted);opacity:.85}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);pointer-events:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:14.5px;font-weight:500;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn-primary:hover{filter:brightness(1.07)}
+.btn-ghost{background:transparent;color:var(--muted);font-weight:400;font-size:13px;padding:7px 12px}
+.btn-ghost:hover{color:var(--accent-ink)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
+.chiprow .sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:4px 13px;border-radius:999px;font-size:13px;cursor:pointer;line-height:1.5}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.chip .cnt{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;margin-left:4px;opacity:.8}
+
+.result-note{color:var(--muted);font-size:13px;margin:14px 2px 4px}
+.qlist{margin-top:6px}
+.qrow{display:grid;grid-template-columns:4px 62px minmax(0,1fr) auto;gap:0 16px;align-items:center;padding:15px 10px 15px 0;border-bottom:1px solid var(--line-soft);text-decoration:none;color:inherit;transition:background .12s}
+.qrow:hover{background:var(--surface)}
+.stripe{width:4px;height:100%;min-height:40px;border-radius:2px}
+.stripe.open{background:var(--open)}
+.stripe.answered{background:var(--ok)}
+.qnum{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12.5px;color:var(--muted)}
+.qmain{min-width:0}
+.qtitle{font-weight:500;font-size:15.5px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.qsnippet{color:var(--muted);font-size:13px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.qside{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.qside .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;color:var(--muted)}
+.tagline-cat{font-size:12px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;font-weight:500;line-height:1.6;white-space:nowrap}
+.pill.open{background:var(--open-bg);color:var(--open)}
+.pill.answered{background:var(--ok-bg);color:var(--ok)}
+.pill.cat{background:var(--surface2);color:var(--muted);font-weight:400}
+.pill.proj{background:var(--accent-soft);color:var(--accent-ink)}
+.empty{padding:56px 20px;text-align:center;color:var(--muted)}
+.empty .big{font-family:"Noto Serif TC",serif;font-size:18px;color:var(--ink);margin-bottom:8px}
+
+.backrow{margin:18px 0 4px}
+.dhead{padding:16px 0 18px;border-bottom:1px solid var(--line)}
+.dmeta-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dtitle{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:700;line-height:1.4;margin:12px 0 10px;text-wrap:balance}
+.dmeta{color:var(--muted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap}
+.dmeta .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:12px}
+.dbody{padding:20px 2px;border-bottom:1px solid var(--line-soft)}
+.rich{white-space:pre-wrap;line-height:1.8;overflow-wrap:anywhere}
+.rich a{word-break:break-all}
+.qimg{display:block;max-width:100%;max-height:420px;border:1px solid var(--line);border-radius:4px;margin:8px 0}
+.dactions{display:flex;gap:6px;justify-content:flex-end;padding:8px 0;flex-wrap:wrap}
+.linkbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 8px;border-radius:3px;text-decoration:none;display:inline-block}
+.linkbtn:hover{color:var(--accent-ink);background:var(--surface2)}
+.sect-title{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--muted);margin:26px 0 4px}
+.reply{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:15px 18px;margin:12px 0}
+.reply.official{border-left:3px solid var(--accent)}
+.reply-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.reply-head .who{font-weight:500;font-size:14px}
+.reply-head .when{font-family:"IBM Plex Mono",Consolas,monospace;font-size:11.5px;color:var(--muted)}
+.reply-head .edited{font-size:11.5px;color:var(--muted)}
+.badge-official{display:inline-block;font-size:11.5px;padding:1px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500}
+.noreply{color:var(--muted);font-size:14px;padding:18px 2px}
+.answer-cta{border:1px dashed var(--line);border-radius:6px;background:var(--surface);padding:16px 18px;margin:14px 0;color:var(--muted);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+
+.panel{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:20px 22px;margin:16px 0}
+.panel h2{font-family:"Noto Serif TC",serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.panel .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;color:var(--muted);font-weight:500;margin-bottom:6px}
+.field input[type="text"],.field select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);font-size:15px}
+.field input:focus,.field select:focus,.search-input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.field .hint{font-size:12px;color:var(--muted);margin-top:5px}
+.form-foot{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.form-foot .note{font-size:12.5px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compose-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start;margin-top:16px}
+.similar-panel{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:16px 18px;position:sticky;top:16px}
+.similar-panel h3{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.similar-panel .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+.sim-item{display:block;padding:9px 10px;border-radius:4px;text-decoration:none;color:inherit;border:1px solid transparent}
+.sim-item:hover{background:var(--surface2)}
+.sim-item .t{font-size:13.5px;line-height:1.45}
+.sim-item .m{font-size:11.5px;color:var(--muted);font-family:"IBM Plex Mono",Consolas,monospace;margin-top:2px}
+.sim-empty{font-size:12.5px;color:var(--muted);padding:6px 2px}
+.steps{margin:0 0 4px;padding-left:20px;color:var(--muted);font-size:13px;line-height:2}
+
+.foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}
+.foot .tools{display:flex;gap:6px;flex-wrap:wrap}
+
+.boot{padding:80px 20px;text-align:center;color:var(--muted)}
+.spin{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:kbspin .8s linear infinite;display:inline-block;vertical-align:-3px;margin-right:10px}
+@keyframes kbspin{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(8px);bottom:28px;background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:5px;font-size:14px;box-shadow:var(--shadow);z-index:80;opacity:0;transition:opacity .18s,transform .18s;max-width:86vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:720px){
+  .masthead{flex-direction:column;align-items:flex-start;gap:8px;padding-top:22px}
+  .mast-right{align-items:flex-start}
+  .mast-stats{text-align:left}
+  .qrow{grid-template-columns:4px minmax(0,1fr) auto;gap:0 12px}
+  .qnum{display:none}
+  .qsnippet{display:none}
+  .compose-grid{grid-template-columns:1fr}
+  .similar-panel{position:static}
+  .row2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="boot"><span class="spin"></span>知識庫載入中…</div></div>
+<script>
+(function(){
+'use strict';
+
+/* ================= helpers ================= */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+function pad(n){return (n<10?'0':'')+n;}
+function fmtDate(iso){var d=new Date(iso);if(isNaN(d.getTime()))return '';return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function debounce(fn,ms){var t;return function(){var a=arguments,s=this;clearTimeout(t);t=setTimeout(function(){fn.apply(s,a);},ms);};}
+
+function hlEsc(text,parts){
+  text=String(text==null?'':text);
+  var ranges=[];
+  if(parts&&parts.length){
+    var low=text.toLowerCase();
+    parts.forEach(function(p){
+      if(!p||p.length<2)return;
+      var i=0;
+      while((i=low.indexOf(p,i))!==-1){ranges.push([i,i+p.length]);i+=1;}
+    });
+    ranges.sort(function(a,b){return a[0]-b[0];});
+    var merged=[];
+    ranges.forEach(function(r){
+      if(merged.length&&r[0]<=merged[merged.length-1][1]){merged[merged.length-1][1]=Math.max(merged[merged.length-1][1],r[1]);}
+      else merged.push([r[0],r[1]]);
+    });
+    ranges=merged;
+  }
+  var out='',pos=0;
+  ranges.forEach(function(r){
+    out+=esc(text.slice(pos,r[0]))+'<mark>'+esc(text.slice(r[0],r[1]))+'</mark>';
+    pos=r[1];
+  });
+  return out+esc(text.slice(pos));
+}
+function isImageUrl(url){
+  if(/\.(png|jpe?g|gif|webp)(\?[^\s]*)?$/i.test(url))return true;
+  if(url.indexOf('github.com/user-attachments/assets/')!==-1)return true;
+  if(url.indexOf('user-images.githubusercontent.com/')!==-1)return true;
+  return false;
+}
+/* escape + highlight + linkify + inline images (markdown ![](url) and bare image urls) */
+var TOKEN_RE=/!\[[^\]\n]*\]\((https?:[^\s)]+)\)|https?:\/\/[^\s<>"'）」』】]+/g;
+function renderText(raw,parts){
+  var text=String(raw==null?'':raw);
+  var out='',last=0,m;
+  TOKEN_RE.lastIndex=0;
+  while((m=TOKEN_RE.exec(text))){
+    var full=m[0];
+    var url=m[1]||full;
+    if(!m[1]){url=url.replace(/[.,;:!?)]+$/,'');}
+    out+=hlEsc(text.slice(last,m.index),parts);
+    if(isImageUrl(url)){
+      out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer"><img class="qimg" loading="lazy" alt="附圖" src="'+esc(url)+'"></a>';
+    }else{
+      out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(url)+'</a>';
+    }
+    last=m.index+(m[1]?full.length:url.length);
+    TOKEN_RE.lastIndex=last;
+  }
+  return out+hlEsc(text.slice(last),parts);
+}
+
+/* ================= data ================= */
+var state=null;
+var loadedAt=0;
+function normalize(data){
+  if(!data||typeof data!=='object')throw new Error('bad data');
+  if(!Array.isArray(data.projects)||!data.projects.length)data.projects=['通用'];
+  if(!Array.isArray(data.categories))data.categories=[];
+  if(!Array.isArray(data.questions))data.questions=[];
+  data.questions.forEach(function(q){
+    if(!Array.isArray(q.replies))q.replies=[];
+    if(data.projects.indexOf(q.project)===-1)q.project='通用';
+    if(q.status!=='answered')q.status='open';
+  });
+  if(data.projects.indexOf('通用')===-1)data.projects.push('通用');
+  return data;
+}
+function fetchData(){
+  return fetch('kb-data.json?t='+Date.now(),{cache:'no-store'})
+    .then(function(res){if(!res.ok)throw new Error('http '+res.status);return res.json();})
+    .then(function(json){state=normalize(json);index=null;loadedAt=Date.now();});
+}
+
+/* ================= search (BM25, CJK bigram) ================= */
+var CJK_RE=/[㐀-䶿一-鿿豈-﫿]+|[a-z0-9][a-z0-9_.+#-]*/g;
+function tokenize(s){
+  var t=[],m,str=String(s||'').toLowerCase();
+  CJK_RE.lastIndex=0;
+  while((m=CJK_RE.exec(str))){
+    var w=m[0];
+    if(/[a-z0-9]/.test(w.charAt(0))){t.push(w);}
+    else if(w.length===1){t.push(w);}
+    else{for(var i=0;i<w.length-1;i++)t.push(w.slice(i,i+2));}
+  }
+  return t;
+}
+function queryParts(qstr){
+  var parts=[],m,str=String(qstr||'').toLowerCase();
+  CJK_RE.lastIndex=0;
+  while((m=CJK_RE.exec(str))){if(m[0].length>=2)parts.push(m[0]);}
+  return parts;
+}
+var index=null;
+function buildIndex(){
+  var docs=state.questions.map(function(q){
+    var toks=[];
+    var tt=tokenize(q.title);for(var i=0;i<3;i++)toks=toks.concat(tt);
+    var tc=tokenize(q.category);toks=toks.concat(tc,tc);
+    var tp=tokenize(q.project);toks=toks.concat(tp,tp);
+    toks=toks.concat(tokenize(q.body));
+    q.replies.forEach(function(r){toks=toks.concat(tokenize(r.body));});
+    var tf={};toks.forEach(function(w){tf[w]=(tf[w]||0)+1;});
+    return {q:q,tf:tf,len:toks.length};
+  });
+  var df={},N=docs.length,avg=0;
+  docs.forEach(function(d){avg+=d.len;Object.keys(d.tf).forEach(function(w){df[w]=(df[w]||0)+1;});});
+  avg=N?avg/N:1;
+  index={docs:docs,df:df,N:N,avg:avg||1};
+}
+function searchQuestions(qstr){
+  if(!index)buildIndex();
+  var raw=String(qstr||'').trim();
+  if(!raw)return null;
+  var numM=raw.match(/^#?[qQ]?-?0*(\d{1,7})$/);
+  var toks=tokenize(raw);
+  var k1=1.2,b=0.75;
+  var results=[];
+  index.docs.forEach(function(d){
+    var score=0;
+    toks.forEach(function(w){
+      var tf=d.tf[w];if(!tf)return;
+      var df=index.df[w]||1;
+      var idf=Math.log(1+(index.N-df+0.5)/(df+0.5));
+      score+=idf*(tf*(k1+1))/(tf+k1*(1-b+b*d.len/index.avg));
+    });
+    var low=raw.toLowerCase();
+    if(low.length>=2){
+      if(String(d.q.title).toLowerCase().indexOf(low)!==-1)score+=6;
+      else if(String(d.q.body).toLowerCase().indexOf(low)!==-1)score+=2.5;
+    }
+    if(numM&&d.q.num===parseInt(numM[1],10))score+=100;
+    if(score>0)results.push({q:d.q,score:score});
+  });
+  results.sort(function(a,b2){return b2.score-a.score;});
+  return results;
+}
+
+/* ================= github links ================= */
+function newIssueUrl(project,title){
+  if(!state||!state.repoUrl)return '';
+  var u=state.repoUrl+'/issues/new?template=question.yml';
+  if(project)u+='&project='+encodeURIComponent(project);
+  if(title)u+='&title='+encodeURIComponent(title);
+  return u;
+}
+
+/* ================= ui bits ================= */
+var toastEl=null,toastTimer=null;
+function toast(msg,ms){
+  if(!toastEl){toastEl=document.createElement('div');toastEl.className='toast';document.body.appendChild(toastEl);}
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){toastEl.classList.remove('show');},ms||2800);
+}
+
+/* ================= view state ================= */
+var ui={q:'',status:'all',cat:null,proj:null,lastCtx:''};
+var root=document.getElementById('root');
+
+function route(){
+  var h=location.hash||'';
+  var m=h.match(/^#q-(\d+)$/);
+  if(m)return{view:'detail',num:parseInt(m[1],10)};
+  m=h.match(/^#p-(.+)$/);
+  if(m){
+    var name=decodeURIComponent(m[1]);
+    return{view:'project',pname:name};
+  }
+  if(h==='#new')return{view:'ask'};
+  return{view:'home'};
+}
+function counts(pname){
+  var open=0,ans=0,all=0;
+  state.questions.forEach(function(q){
+    if(pname&&q.project!==pname)return;
+    all++;
+    if(q.status==='answered')ans++;else open++;
+  });
+  return{all:all,open:open,answered:ans};
+}
+function findByNum(num){
+  for(var i=0;i<state.questions.length;i++)if(state.questions[i].num===num)return state.questions[i];
+  return null;
+}
+function resetFiltersFor(ctx){
+  if(ui.lastCtx!==ctx){ui.q='';ui.status='all';ui.cat=null;ui.lastCtx=ctx;}
+}
+
+/* ================= templates ================= */
+function mastheadHtml(){
+  var c=counts();
+  return '<header class="masthead"><div>'+
+    '<h1 class="wordmark"><a href="#" data-act="go-home">外包知識庫</a></h1>'+
+    '<div class="tagline">依專案分區 · 發問 · 回覆 · 檢索 — 問答都會永久存檔</div></div>'+
+    '<div class="mast-right"><div class="mast-stats">共 <b>'+c.all+'</b> 題'+
+    (c.open?' · <span class="warn">待回覆 '+c.open+'</span>':'')+
+    ' · 已回覆 '+c.answered+'</div>'+
+    '<button class="btn btn-ghost" data-act="refresh" style="padding:2px 8px">↻ 重新整理資料</button></div></header>';
+}
+function pillHtml(status){
+  return status==='answered'?'<span class="pill answered">已回覆</span>':'<span class="pill open">待回覆</span>';
+}
+function qnumStr(n){return 'Q-'+(n<10?'00':(n<100?'0':''))+n;}
+function rowHtml(q,parts,showProject){
+  var lastActive=q.replies.length?q.replies[q.replies.length-1].createdAt:q.createdAt;
+  var sideInfo=showProject?esc(q.project)+' · '+esc(q.category||''):esc(q.category||'');
+  return '<a class="qrow" href="#q-'+q.num+'">'+
+    '<span class="stripe '+(q.status==='answered'?'answered':'open')+'"></span>'+
+    '<span class="qnum">'+qnumStr(q.num)+'</span>'+
+    '<span class="qmain"><span class="qtitle">'+hlEsc(q.title,parts)+'</span>'+
+    '<span class="qsnippet">'+hlEsc(String(q.body).replace(/!\[[^\]\n]*\]\([^)]*\)/g,'[附圖]').replace(/\s+/g,' ').slice(0,120),parts)+'</span></span>'+
+    '<span class="qside">'+pillHtml(q.status)+
+    '<span class="when">'+fmtDate(lastActive).slice(0,10)+' · '+q.replies.length+' 則回覆</span>'+
+    '<span class="tagline-cat">'+sideInfo+'</span></span></a>';
+}
+function svgSearch(){
+  return '<svg class="search-ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11 L14.5 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+}
+function footHtml(){
+  var gen=state.generatedAt?fmtDate(state.generatedAt):'';
+  return '<footer class="foot"><div>'+(gen?'資料更新於 '+gen+' · ':'')+'發問與回覆後約 1–2 分鐘自動更新到本站。</div>'+
+    '<div class="tools">'+
+    '<button class="btn btn-ghost" data-act="export-json">匯出 JSON 備份</button>'+
+    '<button class="btn btn-ghost" data-act="export-md">匯出 Markdown</button>'+
+    (state.repoUrl?'<a class="btn btn-ghost" href="'+esc(state.repoUrl)+'/issues" target="_blank" rel="noopener">GitHub 後台</a>':'')+
+    '</div></footer>';
+}
+
+/* ---------- home ---------- */
+function homeProjectsHtml(){
+  var cards=state.projects.map(function(p){
+    var c=counts(p);
+    return '<a class="projcard" href="#p-'+encodeURIComponent(p)+'"><span class="pname">'+esc(p)+'</span>'+
+      '<span class="pstats">共 '+c.all+' 題'+(c.open?' · <span class="pwarn">待回覆 '+c.open+'</span>':'')+
+      (c.all?' · 已回覆 '+c.answered:'')+'</span></a>';
+  }).join('');
+  return '<div class="home-sect"><h2 class="sect-title" style="margin:0">選擇專案</h2></div><div class="projgrid">'+cards+'</div>';
+}
+function mountHome(){
+  ui.proj=null;
+  resetFiltersFor('home');
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="toolbar"><div class="search-box">'+svgSearch()+
+    '<input class="search-input" id="searchInput" type="search" placeholder="搜尋全部專案，或直接輸入你想問的問題…" value="'+esc(ui.q)+'" aria-label="搜尋全部專案"></div>'+
+    '<button class="btn btn-primary" data-act="go-new">提出問題</button>'+
+    '</div>'+
+    '<div class="result-note" id="resultNote" aria-live="polite"></div>'+
+    '<div class="qlist" id="results"></div>'+
+    '<div id="homeProjects">'+homeProjectsHtml()+'</div>'+
+    footHtml()+'</div>';
+  var si=document.getElementById('searchInput');
+  si.addEventListener('input',debounce(function(){ui.q=si.value;updateHomeResults();},180));
+  updateHomeResults();
+}
+function updateHomeResults(){
+  var el=document.getElementById('results');if(!el)return;
+  var note=document.getElementById('resultNote');
+  var grid=document.getElementById('homeProjects');
+  var searched=searchQuestions(ui.q);
+  if(searched===null){
+    el.innerHTML='';
+    if(note)note.textContent='';
+    if(grid)grid.style.display='';
+    return;
+  }
+  if(grid)grid.style.display='none';
+  var parts=queryParts(ui.q);
+  var list=searched.map(function(r){return r.q;});
+  if(note)note.textContent='在全部專案中找到 '+list.length+' 個相關問答（依相似度排序）';
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="big">找不到相似的問答</div>換個關鍵字試試，或直接提出新問題——你輸入的文字會自動帶入。'+
+      '<div style="margin-top:16px"><button class="btn btn-primary" data-act="go-new-with-q">提出新問題</button></div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(q){return rowHtml(q,parts,true);}).join('')+
+    '<div class="empty" style="padding:26px 20px">沒有你要的答案？<button class="btn btn-ghost" data-act="go-new-with-q" style="text-decoration:underline">把「'+esc(ui.q.slice(0,24))+'」發成新問題</button></div>';
+}
+
+/* ---------- project ---------- */
+function mountProject(pname){
+  if(state.projects.indexOf(pname)===-1){
+    root.innerHTML='<div class="wrap">'+mastheadHtml()+
+      '<div class="empty"><div class="big">找不到這個專案</div>它可能已被改名或移除。</div>'+
+      '<div style="text-align:center"><button class="btn" data-act="go-home">回到專案列表</button></div>'+footHtml()+'</div>';
+    return;
+  }
+  ui.proj=pname;
+  resetFiltersFor('p:'+pname);
+  var c=counts(pname);
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-home">← 全部專案</button></div>'+
+    '<div class="proj-head"><h2 class="proj-title">'+esc(pname)+'</h2>'+
+    '<div class="proj-sub">共 '+c.all+' 題'+(c.open?' · <span class="pwarn">待回覆 '+c.open+'</span>':'')+' · 已回覆 '+c.answered+'</div></div>'+
+    '<div class="toolbar"><div class="search-box">'+svgSearch()+
+    '<input class="search-input" id="searchInput" type="search" placeholder="在「'+esc(pname)+'」中搜尋，或直接輸入你想問的問題…" value="'+esc(ui.q)+'" aria-label="搜尋此專案"></div>'+
+    '<button class="btn btn-primary" data-act="go-new">提出問題</button>'+
+    '</div>'+
+    '<div class="chiprow" id="chipRow"></div>'+
+    '<div class="result-note" id="resultNote" aria-live="polite"></div>'+
+    '<div class="qlist" id="results"></div>'+footHtml()+'</div>';
+  var si=document.getElementById('searchInput');
+  si.addEventListener('input',debounce(function(){ui.q=si.value;updateResults();},180));
+  updateChips();
+  updateResults();
+}
+function updateChips(){
+  var el=document.getElementById('chipRow');if(!el)return;
+  var c=counts(ui.proj);
+  var html='';
+  [['all','全部',c.all],['open','待回覆',c.open],['answered','已回覆',c.answered]].forEach(function(s){
+    html+='<button class="chip'+(ui.status===s[0]?' on':'')+'" data-act="chip-status" data-v="'+s[0]+'">'+s[1]+'<span class="cnt">'+s[2]+'</span></button>';
+  });
+  var cats={};
+  state.categories.forEach(function(cat){cats[cat]=true;});
+  state.questions.forEach(function(q){if(q.project===ui.proj&&q.category)cats[q.category]=true;});
+  var catList=Object.keys(cats);
+  if(catList.length){html+='<span class="sep"></span>';}
+  catList.forEach(function(cat){
+    html+='<button class="chip'+(ui.cat===cat?' on':'')+'" data-act="chip-cat" data-v="'+esc(cat)+'">'+esc(cat)+'</button>';
+  });
+  el.innerHTML=html;
+}
+function updateResults(){
+  var el=document.getElementById('results');if(!el)return;
+  var note=document.getElementById('resultNote');
+  var parts=queryParts(ui.q);
+  var searched=searchQuestions(ui.q);
+  var list;
+  if(searched===null){
+    list=state.questions.slice().sort(function(a,b){return String(b.createdAt).localeCompare(String(a.createdAt));});
+  }else{
+    list=searched.map(function(r){return r.q;});
+  }
+  list=list.filter(function(q){
+    if(q.project!==ui.proj)return false;
+    if(ui.status==='open'&&q.status!=='open')return false;
+    if(ui.status==='answered'&&q.status!=='answered')return false;
+    if(ui.cat&&q.category!==ui.cat)return false;
+    return true;
+  });
+  if(note){
+    if(searched!==null){note.textContent='在「'+ui.proj+'」中找到 '+list.length+' 個相關問答（依相似度排序）';}
+    else if(ui.status!=='all'||ui.cat){note.textContent='符合條件的問題共 '+list.length+' 題';}
+    else note.textContent='';
+  }
+  if(!list.length){
+    var msg=searched!==null
+      ?'<div class="big">這個專案裡找不到相似的問答</div>換個關鍵字試試、回首頁搜尋全部專案，或直接提出新問題。'
+      :'<div class="big">目前沒有符合條件的問題</div>調整上方的篩選條件，或提出第一個問題。';
+    el.innerHTML='<div class="empty">'+msg+
+      '<div style="margin-top:16px"><button class="btn btn-primary" data-act="go-new-with-q">提出新問題</button></div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(q){return rowHtml(q,searched!==null?parts:null,false);}).join('')+
+    (searched!==null?'<div class="empty" style="padding:26px 20px">沒有你要的答案？<button class="btn btn-ghost" data-act="go-new-with-q" style="text-decoration:underline">把「'+esc(ui.q.slice(0,24))+'」發成新問題</button></div>':'');
+}
+
+/* ---------- detail ---------- */
+function mountDetail(num){
+  var q=findByNum(num);
+  if(!q){
+    root.innerHTML='<div class="wrap">'+mastheadHtml()+
+      '<div class="empty"><div class="big">找不到編號 '+qnumStr(num)+' 的問題</div>它可能剛送出還沒同步（約 1–2 分鐘），或已被移除。</div>'+
+      '<div style="text-align:center"><button class="btn" data-act="refresh">重新整理資料</button> <button class="btn" data-act="go-home">回到專案列表</button></div>'+footHtml()+'</div>';
+    return;
+  }
+  ui.proj=q.project;
+  var repliesHtml='';
+  if(!q.replies.length){
+    repliesHtml='<div class="noreply">尚無回覆。管理者看到後會盡快回覆；回覆會顯示在這裡並永久存檔。</div>';
+  }else{
+    repliesHtml=q.replies.map(function(r){
+      return '<div class="reply'+(r.official?' official':'')+'">'+
+        '<div class="reply-head"><span class="who">'+esc(r.author)+'</span>'+
+        (r.official?'<span class="badge-official">正式解答</span>':'')+
+        '<span class="when">'+fmtDate(r.createdAt)+'</span>'+
+        (r.editedAt?'<span class="edited">（已編輯）</span>':'')+
+        '</div><div class="rich">'+renderText(r.body)+'</div></div>';
+    }).join('');
+  }
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-project" data-p="'+esc(q.project)+'">← '+esc(q.project)+'</button>'+
+    '<button class="linkbtn" data-act="go-home">全部專案</button></div>'+
+    '<div class="dhead"><div class="dmeta-top"><span class="qnum mono">'+qnumStr(q.num)+'</span>'+pillHtml(q.status)+
+    '<span class="pill proj">'+esc(q.project)+'</span>'+
+    '<span class="pill cat">'+esc(q.category||'未分類')+'</span></div>'+
+    '<h2 class="dtitle">'+esc(q.title)+'</h2>'+
+    '<div class="dmeta"><span>提問者：'+esc(q.author)+'</span><span class="when">'+fmtDate(q.createdAt)+'</span></div></div>'+
+    '<div class="dbody rich">'+renderText(q.body)+'</div>'+
+    '<div class="dactions"><button class="linkbtn" data-act="copy-link" data-n="'+q.num+'">複製此題連結</button>'+
+    (q.url?'<a class="linkbtn" href="'+esc(q.url)+'" target="_blank" rel="noopener">在 GitHub 開啟</a>':'')+
+    '</div>'+
+    '<div class="sect-title">回覆（'+q.replies.length+'）</div>'+repliesHtml+
+    (q.url?'<div class="answer-cta"><span>要回覆或補充這個問題？到 GitHub 的問題頁留言即可；回覆內容包含「[正式解答]」字樣，此題就會標記為已回覆。</span>'+
+    '<a class="btn" href="'+esc(q.url)+'" target="_blank" rel="noopener">前往回覆</a></div>':'')+
+    footHtml()+'</div>';
+}
+
+/* ---------- ask (pre-check before GitHub) ---------- */
+function mountAsk(){
+  var selProj=(ui.proj&&state.projects.indexOf(ui.proj)!==-1)?ui.proj:'通用';
+  var projOpts=state.projects.map(function(p){
+    return '<option value="'+esc(p)+'"'+(selProj===p?' selected':'')+'>'+esc(p)+'</option>';
+  }).join('');
+  root.innerHTML='<div class="wrap">'+mastheadHtml()+
+    '<div class="backrow"><button class="linkbtn" data-act="go-back-ctx">← 返回</button></div>'+
+    '<div class="compose-grid"><div class="panel" style="margin:0">'+
+    '<h2>提出問題</h2>'+
+    '<div class="sub">先在這裡打標題，右側會即時比對是否已有類似問答；確認沒有，再前往 GitHub 送出。</div>'+
+    '<div class="row2"><div class="field"><label for="cProj">專案</label><select id="cProj">'+projOpts+'</select></div></div>'+
+    '<div class="field"><label for="cTitle">問題標題</label>'+
+    '<input type="text" id="cTitle" maxlength="120" value="'+esc(ui.q||'')+'" placeholder="一句話描述問題，例如：輸出的檔案要用什麼格式命名？"></div>'+
+    '<div class="field"><label>接下來</label><ol class="steps">'+
+    '<li>按下方按鈕，開啟 GitHub 發問表單（標題與專案會自動帶入）</li>'+
+    '<li>填寫名字、分類與詳細描述（可直接貼截圖），按 Create 送出</li>'+
+    '<li>約 1–2 分鐘後，問題就會出現在這個網站上</li></ol>'+
+    '<div class="hint">第一次使用需要登入 GitHub（免費註冊）。</div></div>'+
+    '<div class="form-foot"><button class="btn btn-primary" data-act="go-github">前往 GitHub 送出問題</button>'+
+    '<span class="note">送出後所有人都能看到。</span></div>'+
+    '</div>'+
+    '<aside class="similar-panel"><h3>可能相關的問答</h3><div class="sub">輸入標題時即時比對（跨專案）</div><div id="similarBox"><div class="sim-empty">開始輸入後，這裡會列出相似的問題。</div></div></aside>'+
+    '</div>'+footHtml()+'</div>';
+  var t=document.getElementById('cTitle');
+  t.addEventListener('input',debounce(updateSimilar,250));
+  t.addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();goGithub();}});
+  updateSimilar();
+}
+function updateSimilar(){
+  var box=document.getElementById('similarBox');if(!box)return;
+  var qstr=String(val('cTitle')).trim();
+  if(qstr.length<2){box.innerHTML='<div class="sim-empty">開始輸入後，這裡會列出相似的問題。</div>';return;}
+  var res=searchQuestions(qstr)||[];
+  res=res.slice(0,4);
+  if(!res.length){box.innerHTML='<div class="sim-empty">沒有找到相似的問題，可以放心送出。</div>';return;}
+  box.innerHTML=res.map(function(r){
+    return '<a class="sim-item" href="#q-'+r.q.num+'"><div class="t">'+esc(r.q.title)+'</div>'+
+      '<div class="m">'+qnumStr(r.q.num)+' · '+esc(r.q.project)+' · '+(r.q.status==='answered'?'已回覆':'待回覆')+'</div></a>';
+  }).join('')+'<div class="sim-empty" style="margin-top:6px">點進去看也沒關係，返回後標題還會在。</div>';
+}
+function val(id){var el=document.getElementById(id);return el?el.value:'';}
+function goGithub(){
+  var url=newIssueUrl(val('cProj'),String(val('cTitle')).trim());
+  if(!url){toast('網站尚未完成首次建置，請稍後再試');return;}
+  window.open(url,'_blank','noopener');
+}
+
+/* ================= exports ================= */
+function download(filename,text,type){
+  var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);
+}
+function stamp(){
+  var d=new Date();
+  return ''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+}
+function exportJson(){
+  download('kb-backup-'+stamp()+'.json',JSON.stringify(state,null,2),'application/json');
+  toast('備份已下載');
+}
+function exportMd(){
+  var lines=['# 外包知識庫備份','','匯出時間：'+fmtDate(new Date().toISOString())+' · 共 '+state.questions.length+' 題',''];
+  state.projects.forEach(function(p){
+    var qs=state.questions.filter(function(q){return q.project===p;}).sort(function(a,b){return a.num-b.num;});
+    if(!qs.length)return;
+    lines.push('','# 專案：'+p,'');
+    qs.forEach(function(q){
+      lines.push('---','','## '+qnumStr(q.num)+'　'+q.title,'');
+      lines.push('- 狀態：'+(q.status==='answered'?'已回覆':'待回覆')+'　分類：'+(q.category||'未分類'));
+      lines.push('- 提問：'+q.author+'（'+fmtDate(q.createdAt)+'）','');
+      lines.push(q.body,'');
+      q.replies.forEach(function(r){
+        lines.push('### 回覆 — '+r.author+'（'+fmtDate(r.createdAt)+'）'+(r.official?'【正式解答】':''),'');
+        lines.push(r.body,'');
+      });
+    });
+  });
+  download('kb-export-'+stamp()+'.md',lines.join('\n'),'text/markdown;charset=utf-8');
+  toast('Markdown 已下載');
+}
+function copyLink(num){
+  var url=location.href.split('#')[0]+'#q-'+num;
+  var fail=function(){toast('無法自動複製，請直接複製網址列');};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){toast('已複製連結，可貼到聊天工具分享');},fail);
+    }else fail();
+  }catch(e){fail();}
+}
+
+/* ================= render + events ================= */
+function render(){
+  if(!state)return;
+  var r=route();
+  if(r.view==='detail')mountDetail(r.num);
+  else if(r.view==='project')mountProject(r.pname);
+  else if(r.view==='ask')mountAsk();
+  else mountHome();
+  window.scrollTo(0,0);
+}
+function refresh(quiet){
+  fetchData().then(function(){
+    render();
+    if(!quiet)toast('資料已更新');
+  }).catch(function(){
+    if(!quiet)toast('更新失敗，請稍後再試');
+  });
+}
+window.addEventListener('hashchange',render);
+document.addEventListener('keydown',function(ev){
+  var tag=(ev.target&&ev.target.tagName)||'';
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  if(ev.key==='/'){var si=document.getElementById('searchInput');if(si){ev.preventDefault();si.focus();}}
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&state&&Date.now()-loadedAt>5*60*1000){
+    var ae=document.activeElement;
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return;
+    refresh(true);
+  }
+});
+root.addEventListener('click',function(ev){
+  var el=ev.target.closest('[data-act]');
+  if(!el)return;
+  var act=el.getAttribute('data-act');
+  if(act==='go-home'){ev.preventDefault();if(location.hash&&location.hash!=='#')location.hash='';else render();return;}
+  if(act==='go-project'){ev.preventDefault();location.hash='#p-'+encodeURIComponent(el.getAttribute('data-p'));return;}
+  if(act==='go-back-ctx'){ev.preventDefault();if(ui.proj&&state.projects.indexOf(ui.proj)!==-1)location.hash='#p-'+encodeURIComponent(ui.proj);else location.hash='';return;}
+  if(act==='go-new'){ev.preventDefault();location.hash='#new';return;}
+  if(act==='go-new-with-q'){ev.preventDefault();location.hash='#new';return;}
+  if(act==='go-github'){goGithub();return;}
+  if(act==='chip-status'){ui.status=el.getAttribute('data-v');updateChips();updateResults();return;}
+  if(act==='chip-cat'){var v=el.getAttribute('data-v');ui.cat=(ui.cat===v)?null:v;updateChips();updateResults();return;}
+  if(act==='refresh'){refresh(false);return;}
+  if(act==='copy-link'){copyLink(parseInt(el.getAttribute('data-n'),10));return;}
+  if(act==='export-json'){exportJson();return;}
+  if(act==='export-md'){exportMd();return;}
+});
+
+fetchData().then(render).catch(function(err){
+  root.innerHTML='<div class="wrap"><div class="boot">無法載入知識庫資料（'+esc(err&&err.message||'unknown')+'）。<br><br>'+
+    '<button class="btn btn-primary" id="retryBtn">重試</button></div></div>';
+  document.getElementById('retryBtn').addEventListener('click',function(){location.reload();});
+});
+})();
+</script>
+</body>
+</html>

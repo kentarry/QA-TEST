@@ -1,0 +1,51 @@
+name: 提出問題
+description: 向外包知識庫提出新問題（送出後約 1–2 分鐘會出現在網站上）
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝發問！**上方的 Title（標題）請直接填寫你的問題**，例如：輸出的檔案要用什麼格式命名？
+        發問前建議先到知識庫網站搜尋是否已有類似問題。
+  - type: input
+    id: name
+    attributes:
+      label: 你的名字
+      description: 顯示在知識庫網站上的名字，可用暱稱
+      placeholder: 例如：小林
+    validations:
+      required: true
+  - type: dropdown
+    id: project
+    attributes:
+      label: 專案
+      description: 這個問題屬於哪個專案？跨專案的一般問題請選「通用」
+      options:
+        - 滿貫
+        - 大滿貫
+        - 明星3缺1
+        - 明星GO
+        - 通用
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: 分類
+      options:
+        - 環境與帳號
+        - 流程與規範
+        - 技術問題
+        - 檔案與交付
+        - 時程與請款
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: 詳細描述
+      description: 把情境講清楚：你在做什麼、遇到什麼狀況、試過什麼。可以直接把截圖貼上（拖曳或 Ctrl+V）。
+      placeholder: 例如：我在交付明星GO 的活動 banner 時，不確定檔名要不要帶日期與版本號…
+    validations:
+      required: true
